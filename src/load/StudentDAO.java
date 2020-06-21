@@ -5,33 +5,42 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
+import load_data_from_local_to_staging.GetConnection;
+
 public class StudentDAO {
 
 	private Connection conn;
 	private PreparedStatement ps;
 
-	public void insertListBooks(List<Student> listStudent) {
+	public void insertListStudents(List<Student> listStudent) {
 		try {
-			conn = MySQLConnectionUtils.connect();
-			String name = MySQLConnectionUtils.getNameDB();
+			conn = GetConnection.connect();
+			String name = GetConnection.getNameDB();
 			System.out.println(name);
-	
+
 			conn.setAutoCommit(false);
-			String s = "CREATE TABLE " + name+ "(Number varchar(255),Name varchar(255), Gender varchar(255),Identitycard varchar(255), Email varchar(255),Phone varchar(255),Address varchar(255))";
-			String sql = "INSERT INTO " + name+ "(number,name, gender,identitycard, email,phone,address) VALUES (?,?,?,?,?,?,?)";
+			String s = "CREATE TABLE students" 
+					+ "(stt varchar(255),masv varchar(255), holot varchar(255),ten varchar(255), ngaysinh varchar(255),malop varchar(255),"
+					+ "tenlop varchar(255), dien_thoai varchar(255),email varchar(255),quequan varchar(255),ghichu varchar(255))";
+			String sql = "INSERT INTO students"
+					+ "(stt,masv, holot,ten, ngaysinh,malop,tenlop,dien_thoai,email,quequan,ghichu) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 			ps = conn.prepareStatement(s);
 			ps.execute();
 			ps = conn.prepareStatement(sql);
 			listStudent.remove(0);
 			for (Student student : listStudent) {
-				ps.setString(1, student.getNumber());
-				ps.setString(2, student.getName());
-				ps.setString(3, student.getGender());
-				ps.setString(4, student.getIdentityCard());
-				ps.setString(5, student.getEmail());
-				ps.setString(6, student.getPhone());
-				ps.setString(7, student.getAddress());
-
+				ps.setString(1, student.getStt());
+				ps.setString(2, student.getMasv());
+				ps.setString(3, student.getHolot());
+				ps.setString(4, student.getTen());
+				ps.setString(5, student.getNgaysinh());
+				ps.setString(6, student.getMalop());
+				ps.setString(7, student.getTenlop());
+				
+				ps.setString(8, student.getDthoai());
+				ps.setString(9, student.getEmail());
+				ps.setString(10, student.getQuequan());
+				ps.setString(11, student.getGhichu());
 				ps.addBatch();
 			}
 

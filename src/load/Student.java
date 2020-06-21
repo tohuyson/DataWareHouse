@@ -1,72 +1,123 @@
 package load;
 
 public class Student {
-	private String number;
-	private String name;
-	private String gender;
-	private String identityCard;
+	private String stt;
+	private String masv;
+	private String holot;
+	private String ten;
+	private String ngaysinh;
+	private String malop;
+	private String tenlop;
+	private String dthoai;
 	private String email;
-	private String phone;
-	private String address;
+	private String quequan;
+	private String ghichu;
 	
 	public Student() {
 	}
-	
-	public Student(String number, String name, String gender, String identityCard, String email, String phone,
-			String address) {
+
+	public Student(String stt, String masv, String holot, String ten, String ngaysinh, String malop, String tenlop,
+			String dthoai, String email, String quequan, String ghichu) {
 		super();
-		this.number = number;
-		this.name = name;
-		this.gender = gender;
-		this.identityCard = identityCard;
+		this.stt = stt;
+		this.masv = masv;
+		this.holot = holot;
+		this.ten = ten;
+		this.ngaysinh = ngaysinh;
+		this.malop = malop;
+		this.tenlop = tenlop;
+		this.dthoai = dthoai;
 		this.email = email;
-		this.phone = phone;
-		this.address = address;
-	}
-	
-	public String getNumber() {
-		return number;
+		this.quequan = quequan;
+		this.ghichu = ghichu;
 	}
 
-	public void setNumber(String number) {
-		this.number = number;
+	public String getStt() {
+		return stt;
 	}
 
-	public String getName() {
-		return name;
+	public void setStt(String stt) {
+		this.stt = stt;
 	}
-	public void setName(String name) {
-		this.name = name;
+
+	public String getMasv() {
+		return masv;
 	}
-	public String getGender() {
-		return gender;
+
+	public void setMasv(String masv) {
+		this.masv = masv;
 	}
-	public void setGender(String gender) {
-		this.gender = gender;
+
+	public String getHolot() {
+		return holot;
 	}
-	public String getIdentityCard() {
-		return identityCard;
+
+	public void setHolot(String holot) {
+		this.holot = holot;
 	}
-	public void setIdentityCard(String identityCard) {
-		this.identityCard = identityCard;
+
+	public String getTen() {
+		return ten;
 	}
+
+	public void setTen(String ten) {
+		this.ten = ten;
+	}
+
+	public String getNgaysinh() {
+		return ngaysinh;
+	}
+
+	public void setNgaysinh(String ngaysinh) {
+		this.ngaysinh = ngaysinh;
+	}
+
+	public String getMalop() {
+		return malop;
+	}
+
+	public void setMalop(String malop) {
+		this.malop = malop;
+	}
+
+	public String getTenlop() {
+		return tenlop;
+	}
+
+	public void setTenlop(String tenlop) {
+		this.tenlop = tenlop;
+	}
+
+	public String getDthoai() {
+		return dthoai;
+	}
+
+	public void setDthoai(String dthoai) {
+		this.dthoai = dthoai;
+	}
+
 	public String getEmail() {
 		return email;
 	}
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getPhone() {
-		return phone;
+
+	public String getQuequan() {
+		return quequan;
 	}
-	public void setPhone(String phone) {
-		this.phone = phone;
+
+	public void setQuequan(String quequan) {
+		this.quequan = quequan;
 	}
-	public String getAddress() {
-		return address;
+
+	public String getGhichu() {
+		return ghichu;
 	}
-	public void setAddress(String address) {
-		this.address = address;
+
+	public void setGhichu(String ghichu) {
+		this.ghichu = ghichu;
 	}
 
 }

@@ -10,7 +10,7 @@ public class Test {
              
             List<Student> listBooks = new ReadFromExcelFile().readBooksFromExcelFile(excelFilePath);
             StudentDAO studentDAO = new StudentDAO();
-            studentDAO.insertListBooks(listBooks);
+            studentDAO.insertListStudents(listBooks);
              
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());

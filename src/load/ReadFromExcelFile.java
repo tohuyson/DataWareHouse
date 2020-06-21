@@ -34,25 +34,38 @@ public class ReadFromExcelFile {
 
 				switch (columnIndex) {
 				case 0:
-					student.setNumber((String) getCellValue(cell));
+					student.setStt((String) getCellValue(cell));
 					break;
 				case 1:
-					student.setName((String) getCellValue(cell));
+					student.setMasv((String) getCellValue(cell));
 					break;
 				case 2:
-					student.setGender((String) getCellValue(cell));
+					student.setHolot((String) getCellValue(cell));
 					break;
 				case 3:
-					student.setIdentityCard((String) getCellValue(cell));
+					student.setTen((String) getCellValue(cell));
 					break;
 				case 4:
-					student.setEmail((String) getCellValue(cell));
+					student.setNgaysinh((String) getCellValue(cell));
 					break;
 				case 5:
-					student.setPhone((String) getCellValue(cell));
+					student.setMalop((String) getCellValue(cell));
 					break;
 				case 6:
-					student.setAddress((String) getCellValue(cell));
+					student.setTenlop((String) getCellValue(cell));
+					break;
+					
+				case 7:
+					student.setDthoai((String) getCellValue(cell));
+					break;
+				case 8:
+					student.setEmail((String) getCellValue(cell));
+					break;
+				case 9:
+					student.setQuequan((String) getCellValue(cell));
+					break;
+				case 10:
+					student.setGhichu((String) getCellValue(cell));
 					break;
 				}
 			}
