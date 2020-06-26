@@ -1,0 +1,59 @@
+*Query :
+Create Table my_configs (
+  id  int (11) AUTO_INCREMENT
+  ,id_log  int(11) NOT NULL
+	,path_local VARCHAR(255)NOT NULL
+	,name_file_local VARCHAR(255)NOT NULL
+	,name_table_staging VARCHAR(255)NOT NULL
+	,colum_table_staging int(20)NOT NULL
+	,field VARCHAR(255)NOT NULL
+	,created_at TIMESTAMP(0) NOT NULL
+	,updated_at TIMESTAMP(0) NOT NULL
+  ,primary key (id)
+)
+Create Table my_logs (
+  id  int(0) NOT NULL AUTO_INCREMENT
+  ,id_config  int(11)NOT NULL
+  ,status_download VARCHAR(255)NOT NULL
+	,date_time_download datetime(6)NOT NULL
+	,status_stagging VARCHAR(255)NOT NULL
+	,date_time_staging datetime(6)NOT NULL
+	,load_row_stagging int(255)NOT NULL
+	,status_warehouse VARCHAR(255)NOT NULL
+	,date_time_warehouse datetime(6)NOT NULL
+	,load_row_warehouse int(255)NOT NULL
+	,created_at TIMESTAMP(0) NOT NULL
+	,updated_at TIMESTAMP(0) NOT NULL
+  ,primary key (id)
+  ,foreign key (id_config) references my_configs(id)
+
+)
+CREATE TABLE users  (
+  id int(0) NOT NULL AUTO_INCREMENT,
+  ma_sinhvien varchar(255) NOT NULL,
+  ho_lot varchar(255) NOT NULL,
+  ten varchar(255) NOT NULL,
+  ngay_sinh varchar(255) NOT NULL,
+  ma_lop varchar(255) NOT NULL,
+  ten_lop varchar(255) NOT NULL,
+  dien_thoai varchar(255) NOT NULL,
+  email varchar(255) NOT NULL,
+  que_quan varchar(255) NOT NULL,
+  ghi_chu varchar(255) NOT NULL,
+  PRIMARY KEY (id) USING BTREE
+) 
+// test 
+TRUNCATE TABLE users
+DROP TABLE users
+
+INSERT INTO my_logs VALUES (1, 1, 'OK Download', '0000-00-00 00:00:00.000000', 'E:\\23. DataWarehouse\\baitap\\', '17130016_sang_nhom12', '.xlsx', 'OK Staging', '2020-06-26 20:36:00.000000', 97, '', '0000-00-00 00:00:00.000000', 0, '2020-06-26 20:36:00', '0000-00-00 00:00:00');
+
+SELECT my_logs.id_config ,my_logs.name_file_local, my_configs.colum_table_staging,my_configs.name_table_staging , my_logs.local_path,my_logs.extension 
+from my_logs JOIN my_configs on my_logs.id_config= my_configs.id
+where my_logs.status_download ='OK Download'
+
+UPDATE my_logs SET my_logs.load_row_stagging = 2, my_logs.status_stagging='OK Staging', my_logs.date_time_staging=now()  WHERE id=1;
+
+SELECT my_logs.id ,my_logs.name_file_local, my_configs.name_table_staging ,my_configs.colum_table_staging, my_logs.local_path,my_logs.extension from my_logs JOIN my_configs on my_logs.id= my_configs.id_log where my_logs.status_download LIKE 'OK Download'
+
+
