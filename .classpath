@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-13">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/17130/Downloads/pscp/chilkat.jar"/>
-	<classpathentry kind="lib" path="C:/Users/17130/Downloads/mysql-connector-java-8.0.9-rc.jar"/>
-	<classpathentry kind="lib" path="C:/Users/17130/Downloads/ojdbc6.jar/ojdbc6.jar"/>
+	<classpathentry kind="lib" path="lib/chilkat.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.10.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections4-4.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-compress-1.18.jar"/>
+	<classpathentry kind="lib" path="lib/curvesapi-1.04.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.22-bin.jar"/>
+	<classpathentry kind="lib" path="lib/poi-4.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/poi-ooxml-4.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/poi-ooxml-schemas-4.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/xmlbeans-3.1.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.8.0_151"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

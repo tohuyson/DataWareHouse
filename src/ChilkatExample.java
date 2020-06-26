@@ -7,7 +7,7 @@ import com.chilkatsoft.CkSsh;
 public class ChilkatExample {
 	static {
 		try {
-			System.loadLibrary("chilkat"); //copy file chilkat.dll vao thu muc project
+			System.loadLibrary("lib\\chilkat"); //copy file chilkat.dll vao thu muc project
 		} catch (UnsatisfiedLinkError e) {
 			System.err.println("Native code library failed to load.\n" + e);
 			System.exit(1);
