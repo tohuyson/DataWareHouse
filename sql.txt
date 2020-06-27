@@ -1,7 +1,6 @@
 *Query :
 Create Table my_configs (
   id  int (11) AUTO_INCREMENT
-  ,id_log  int(11) NOT NULL
 	,path_local VARCHAR(255)NOT NULL
 	,name_file_local VARCHAR(255)NOT NULL
 	,name_table_staging VARCHAR(255)NOT NULL
