@@ -92,14 +92,14 @@ public class LoadFromLocalToStaging {
 
 						listStudent.remove(0);
 						int stt = 0;
-						int record= record_count();
+						int record = record_count();
 						for (Student student : listStudent) {
 							stt = Integer.parseInt(student.getStt());
-							if(record==0) {
+							if (record == 0) {
 								stt = record;
-							}else{
+							} else {
 								record++;
-								stt=record;
+								stt = record;
 							}
 							ps.setString(1, String.valueOf(stt));
 							ps.setString(2, student.getMasv());
@@ -121,6 +121,16 @@ public class LoadFromLocalToStaging {
 
 						System.out.println("Load staging successfully:\t" + "file : " + filename
 								+ " ----> số dòng load thành công: " + count);
+						String sql_update_record;
+						if (record == 0) {
+							System.out.println(" ----> dòng record_end: " + listStudent.size());
+							sql_update_record = "UPDATE my_logs SET record_end=" + listStudent.size() +" WHERE id=" + id;
+						} else {
+							System.out.println(" ----> dòng record_end: " + record);
+							sql_update_record = "UPDATE my_logs SET record_end=" + record +" WHERE id=" + id;
+						}
+						pre_control = (PreparedStatement) conn.prepareStatement(sql_update_record);
+						pre_control.executeUpdate();
 						// Kiểm tra số dòng đọc được vào staging của file
 						String sql2;
 						if (count > 0) {
@@ -193,11 +203,11 @@ public class LoadFromLocalToStaging {
 					}
 					Student student = new Student();
 					for (int i = 0; i < data.length; i++) {
-						if(data[i]==null) {
-							data[i]="-1";
-						}else
-						System.out.print(data[i] + "\t\t");
-						student.setStt(data[0]);
+						if (data[i] == null) {
+							data[i] = "-1";
+						} else
+							// System.out.print(data[i] + "\t\t");
+							student.setStt(data[0]);
 						student.setMasv(data[1]);
 						student.setHolot(data[2]);
 						student.setTen(data[3]);
@@ -211,7 +221,7 @@ public class LoadFromLocalToStaging {
 					}
 					listStudents.add(student);
 					int c = data.length;
-					System.out.println("");
+					// System.out.println("");
 				}
 			} catch (IOException e) {
 				throw new RemoteException(e.getMessage(), e);
