@@ -61,11 +61,11 @@ public class GetConnection {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Connection conn = new GetConnection().getConnection("control");
-		if (conn != null) {
-			System.out.println("Successfully");
-		}
-		// String s = "191924|hsjabro jsdfkj asdkj@aks";
-		// System.out.println(s.replace("|", ",").replace("\t", ","));
+//		Connection conn = new GetConnection().getConnection("control");
+//		if (conn != null) {
+//			System.out.println("Successfully");
+//		}
+		 String s = "191924|hsjabro jsdfkj asdkj@aks";
+		 System.out.println(s.replace("|", ",").replace(" ", ","));
 	}
 }

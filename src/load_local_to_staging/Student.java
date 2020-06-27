@@ -120,4 +120,11 @@ public class Student {
 		this.ghichu = ghichu;
 	}
 
+	@Override
+	public String toString() {
+		return "Student [stt=" + stt + ", masv=" + masv + ", holot=" + holot + ", ten=" + ten + ", ngaysinh=" + ngaysinh
+				+ ", malop=" + malop + ", tenlop=" + tenlop + ", dthoai=" + dthoai + ", email=" + email + ", quequan="
+				+ quequan + ", ghichu=" + ghichu + "]";
+	}
+
 }
