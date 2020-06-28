@@ -44,7 +44,7 @@ public class LoadFromLocalToStaging {
 		try {
 			// connect database control
 			conn = new GetConnection().getConnection("control");
-			// Tìm các file OK Download
+			// TÃ¬m cÃ¡c file OK Download
 			pre_control = (PreparedStatement) conn.prepareStatement(
 					"SELECT my_logs.id ,my_logs.name_file_local, my_configs.name_table_staging ,my_configs.colum_table_staging, my_logs.local_path,my_logs.extension,my_logs.status_stagging"
 							+ " from my_logs JOIN my_configs on my_logs.id_config= my_configs.id" + " where "
@@ -59,7 +59,7 @@ public class LoadFromLocalToStaging {
 				int number_column = re.getInt("colum_table_staging");
 				String status_staging = re.getString("status_stagging");
 
-				// Kiểm tra file có tồn tại trên folder không
+				// Kiá»ƒm tra file cÃ³ tá»“n táº¡i trÃªn folder khÃ´ng
 				String path = dir + filename + extend;
 				System.out.println(path);
 				File file = new File(path);
@@ -73,19 +73,20 @@ public class LoadFromLocalToStaging {
 					System.out.println("File done load");
 				} else {
 					try {
-						// Mở kết nối DB staging
+						// Má»Ÿ káº¿t ná»‘i DB staging
 						Connection conn_Staging = new GetConnection().getConnection("staging");
+						System.out.println("sucess");
 						PreparedStatement ps;
 						int count = 0;
 						List<Student> listStudent = null;
 						if (extend.equals(".xlsx")) {
-							// Mở file để đọc dữ liệu lên
+							// Má»Ÿ file Ä‘á»ƒ Ä‘á»�c dá»¯ liá»‡u lÃªn
 							listStudent = readStudentsFromExcelFile(path);
 						} else if (extend.equals(".txt") || extend.equals(".csv")) {
 							listStudent = readStudentsFromTXTOrCSV(path, number_column);
 						}
 
-						// insert tất cả students vào DB
+						// insert táº¥t cáº£ students vÃ o DB
 						String sql = "INSERT INTO " + name_table_staging
 								+ "(id,ma_sinhvien, ho_lot,ten, ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 						ps = (PreparedStatement) conn_Staging.prepareStatement(sql);
@@ -114,24 +115,24 @@ public class LoadFromLocalToStaging {
 							ps.setString(10, student.getQuequan());
 							ps.setString(11, student.getGhichu());
 							ps.addBatch();
-							// Lưu số dòng load thành công
+							// LÆ°u sá»‘ dÃ²ng load thÃ nh cÃ´ng
 							count += ps.executeUpdate();
 							stt++;
 						}
 
 						System.out.println("Load staging successfully:\t" + "file : " + filename
-								+ " ----> số dòng load thành công: " + count);
+								+ " ----> sá»‘ dÃ²ng load thÃ nh cÃ´ng: " + count);
 						String sql_update_record;
 						if (record == 0) {
-							System.out.println(" ----> dòng record_end: " + listStudent.size());
+							System.out.println(" ----> dÃ²ng record_end: " + listStudent.size());
 							sql_update_record = "UPDATE my_logs SET record_end=" + listStudent.size() +" WHERE id=" + id;
 						} else {
-							System.out.println(" ----> dòng record_end: " + record);
+							System.out.println(" ----> dÃ²ng record_end: " + record);
 							sql_update_record = "UPDATE my_logs SET record_end=" + record +" WHERE id=" + id;
 						}
 						pre_control = (PreparedStatement) conn.prepareStatement(sql_update_record);
 						pre_control.executeUpdate();
-						// Kiểm tra số dòng đọc được vào staging của file
+						// Kiá»ƒm tra sá»‘ dÃ²ng Ä‘á»�c Ä‘Æ°á»£c vÃ o staging cá»§a file
 						String sql2;
 						if (count > 0) {
 							sql2 = "UPDATE my_logs SET load_row_stagging=" + count + ", "
@@ -151,7 +152,7 @@ public class LoadFromLocalToStaging {
 				}
 
 			}
-			// Đóng kết nối
+			// Ä�Ã³ng káº¿t ná»‘i
 			re.close();
 			pre_control.close();
 			conn.close();
@@ -164,7 +165,7 @@ public class LoadFromLocalToStaging {
 	}
 
 	private int record_count() throws RemoteException {
-		// đếm tổng record trong table staging để set id
+		// Ä‘áº¿m tá»•ng record trong table staging Ä‘á»ƒ set id
 		int record_count = -1;
 		Connection conn_Staging;
 		try {
@@ -191,10 +192,11 @@ public class LoadFromLocalToStaging {
 					new InputStreamReader(new FileInputStream(path), Charset.forName("UTF-8")));
 			String lineText;
 			try {
-				// bỏ header
+				// bá»� header
 				lineText = bufferedReader.readLine();
 				while ((lineText = bufferedReader.readLine()) != null) {
 					StringTokenizer tokenizer = new StringTokenizer(lineText, ",|");
+					System.out.println(number_column);
 					String[] data = new String[number_column];
 					int k = 0;
 					while (tokenizer.hasMoreElements()) {

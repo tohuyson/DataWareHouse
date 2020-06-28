@@ -11,6 +11,6 @@
 	<classpathentry kind="lib" path="lib/poi-ooxml-4.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/poi-ooxml-schemas-4.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/xmlbeans-3.1.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.8.0_151"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
