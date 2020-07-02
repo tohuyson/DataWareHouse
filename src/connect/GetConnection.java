@@ -15,7 +15,7 @@ public class GetConnection {
 	String user = null;
 	String pass = null;
 	String databasebName = null;
-	
+
 	public Connection getConnection(String location) throws Exception {
 		String link = "config\\config.properties";
 		Connection result = null;
@@ -43,20 +43,33 @@ public class GetConnection {
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
+		} else if (location.equalsIgnoreCase("warehouse")) {
+			try (InputStream input = new FileInputStream(link)) {
+				Properties prop = new Properties();
+				prop.load(input);
+				driver = prop.getProperty("driver");
+				url = prop.getProperty("url_warehouse");
+				databasebName = prop.getProperty("database_name_warehouse");
+				user = prop.getProperty("username_warehouse");
+				System.out.println(user);
+				pass = prop.getProperty("pass_warehouse");
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
 		} else {
 			System.out.println(driver);
 
 		}
 //			Class.forName(driver).newInstance();
-			String connectionURL = url + databasebName + "?useUnicode=yes&characterEncoding=UTF-8";
-//			System.out.println(connectionURL);
-			try {
-				result = DriverManager.getConnection(connectionURL,user,pass);
-			} catch (SQLException e) {
-				System.out.println("Can't connect!");
-				System.exit(0);
-				e.printStackTrace();
-			}
+		String connectionURL = url + databasebName + "?useUnicode=yes&characterEncoding=UTF-8";
+		System.out.println(connectionURL);
+		try {
+			result = DriverManager.getConnection(connectionURL, user, pass);
+		} catch (SQLException e) {
+			System.out.println("Can't connect!");
+			System.exit(0);
+			e.printStackTrace();
+		}
 		return result;
 	}
 
@@ -65,7 +78,7 @@ public class GetConnection {
 //		if (conn != null) {
 //			System.out.println("Successfully");
 //		}
-		 String s = "191924|hsjabro jsdfkj asdkj@aks";
-		 System.out.println(s.replace("|", ",").replace(" ", ","));
+		String s = "191924|hsjabro jsdfkj asdkj@aks";
+		System.out.println(s.replace("|", ",").replace(" ", ","));
 	}
 }
