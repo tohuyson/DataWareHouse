@@ -44,6 +44,8 @@ public class LoadFromLocalToStaging {
 		try {
 			// connect database control
 			conn = new GetConnection().getConnection("control");
+			// Má»Ÿ káº¿t ná»‘i DB staging
+			Connection conn_Staging = new GetConnection().getConnection("staging");
 			// TÃ¬m cÃ¡c file OK Download
 			pre_control = (PreparedStatement) conn.prepareStatement(
 					"SELECT my_logs.id ,my_logs.name_file_local, my_configs.name_table_staging ,my_configs.colum_table_staging, my_logs.local_path,my_logs.extension,my_logs.status_stagging"
@@ -64,7 +66,7 @@ public class LoadFromLocalToStaging {
 				System.out.println(path);
 				File file = new File(path);
 				if (!file.exists()) {
-					System.out.println(path + "khong ton tai");
+					System.out.println(path + " \tkhông tồn tại");
 					String sql2 = "UPDATE my_logs SET "
 							+ "my_logs.status_stagging='ERROR Staging', my_logs.date_time_staging=now() WHERE id=" + id;
 					pre_control = (PreparedStatement) conn.prepareStatement(sql2);
@@ -73,19 +75,28 @@ public class LoadFromLocalToStaging {
 					System.out.println("File done load");
 				} else {
 					try {
-						// Má»Ÿ káº¿t ná»‘i DB staging
-						Connection conn_Staging = new GetConnection().getConnection("staging");
-						System.out.println("sucess");
+
+						if (extend.equals(".osheet")) {
+							System.out.println("bỏ qua");
+							continue;
+						}
 						PreparedStatement ps;
 						int count = 0;
 						List<Student> listStudent = null;
-						if (extend.equals(".xlsx")) {
+						// kiểm tra file đó có đủ trường dl k
+						if (excuteDataNotTrueFiled(path, number_column) && extend.equals(".xlsx")) {
 							// Má»Ÿ file Ä‘á»ƒ Ä‘á»�c dá»¯ liá»‡u lÃªn
-							listStudent = readStudentsFromExcelFile(path);
-						} else if (extend.equals(".txt") || extend.equals(".csv")) {
+							System.out.println("Start............");
+							listStudent = readStudentsFromExcelFile(path, number_column);
+						} else if (excuteDataNotTrueFiled(path, number_column)
+								&& (extend.equals(".txt") || extend.equals(".csv"))) {
 							listStudent = readStudentsFromTXTOrCSV(path, number_column);
 						}
-
+						// kiem tra co student ms inssert
+						if (listStudent==null) {
+							System.out.println(" list null");
+							break;
+						}else {
 						// insert táº¥t cáº£ students vÃ o DB
 						String sql = "INSERT INTO " + name_table_staging
 								+ "(id,ma_sinhvien, ho_lot,ten, ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
@@ -125,10 +136,11 @@ public class LoadFromLocalToStaging {
 						String sql_update_record;
 						if (record == 0) {
 							System.out.println(" ----> dÃ²ng record_end: " + listStudent.size());
-							sql_update_record = "UPDATE my_logs SET record_end=" + listStudent.size() +" WHERE id=" + id;
+							sql_update_record = "UPDATE my_logs SET record_end=" + listStudent.size() + " WHERE id="
+									+ id;
 						} else {
 							System.out.println(" ----> dÃ²ng record_end: " + record);
-							sql_update_record = "UPDATE my_logs SET record_end=" + record +" WHERE id=" + id;
+							sql_update_record = "UPDATE my_logs SET record_end=" + record + " WHERE id=" + id;
 						}
 						pre_control = (PreparedStatement) conn.prepareStatement(sql_update_record);
 						pre_control.executeUpdate();
@@ -145,7 +157,7 @@ public class LoadFromLocalToStaging {
 						}
 						pre_control = (PreparedStatement) conn.prepareStatement(sql2);
 						pre_control.executeUpdate();
-
+						}
 					} catch (IOException e) {
 						throw new RemoteException(e.getMessage(), e);
 					}
@@ -162,6 +174,11 @@ public class LoadFromLocalToStaging {
 		SQLException e) {
 			throw new RemoteException(e.getMessage(), e);
 		}
+	}
+
+	private boolean excuteDataNotTrueFiled(String path, int number_column) {
+
+		return true;
 	}
 
 	private int record_count() throws RemoteException {
@@ -196,8 +213,9 @@ public class LoadFromLocalToStaging {
 				lineText = bufferedReader.readLine();
 				while ((lineText = bufferedReader.readLine()) != null) {
 					StringTokenizer tokenizer = new StringTokenizer(lineText, ",|");
-					System.out.println(number_column);
+//					System.out.println(number_column);
 					String[] data = new String[number_column];
+
 					int k = 0;
 					while (tokenizer.hasMoreElements()) {
 						data[k] = tokenizer.nextToken();
@@ -219,7 +237,12 @@ public class LoadFromLocalToStaging {
 						student.setDthoai(data[7]);
 						student.setEmail(data[8]);
 						student.setQuequan(data[9]);
-						student.setGhichu(data[10]);
+//						student.setGhichu(data[10]);
+//							for (int j = 1; j <= number_column; j++) {
+//								String value = tokenizer.nextToken();
+//								pre.setNString(j, value);
+//							}
+//							i = pre.executeUpdate();
 					}
 					listStudents.add(student);
 					int c = data.length;
@@ -234,7 +257,7 @@ public class LoadFromLocalToStaging {
 		return listStudents;
 	}
 
-	public List<Student> readStudentsFromExcelFile(String excelFilePath) throws IOException {
+	public List<Student> readStudentsFromExcelFile(String excelFilePath, int number_column) throws IOException {
 		List<Student> listStudents = new ArrayList<Student>();
 		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
 		Workbook workBook = getWorkbook(inputStream, excelFilePath);
@@ -243,48 +266,66 @@ public class LoadFromLocalToStaging {
 		while (rows.hasNext()) {
 			Row row = rows.next();
 			Iterator<Cell> cells = row.cellIterator();
+
 			Student student = new Student();
 			while (cells.hasNext()) {
 				Cell cell = cells.next();
 				int columnIndex = cell.getColumnIndex();
-				switch (columnIndex) {
-				case 0:
-					student.setStt((String) String.valueOf(getCellValue(cell)));
-					break;
-				case 1:
-					student.setMasv((String) String.valueOf(getCellValue(cell)));
-					break;
-				case 2:
-					student.setHolot((String) getCellValue(cell));
-					break;
-				case 3:
-					student.setTen((String) getCellValue(cell));
-					break;
-				case 4:
-					student.setNgaysinh((String) String.valueOf(getCellValue(cell)));
-					break;
-				case 5:
-					student.setMalop((String) getCellValue(cell));
-					break;
-				case 6:
-					student.setTenlop((String) getCellValue(cell));
-					break;
+				System.out.println("cdddddd"+ columnIndex);
+				int total_column = 0;
+				if (!cells.hasNext()) {
+					total_column = columnIndex+1;
+					System.out.println("total column=" + total_column);
+					if (total_column != number_column) {
+						System.out.println("Số trường không trùng khớp !");
+						return null;
+					} else {
+						switch (columnIndex) {
+						case 0:
+							student.setStt((String) String.valueOf(getCellValue(cell)));
+							break;
+						case 1:
+							student.setMasv((String) String.valueOf(getCellValue(cell)));
+							break;
+						case 2:
+							student.setHolot((String) getCellValue(cell));
+							break;
+						case 3:
+							student.setTen((String) getCellValue(cell));
+							break;
+						case 4:
+							student.setNgaysinh((String) String.valueOf(getCellValue(cell)));
+							break;
+						case 5:
+							student.setMalop((String) getCellValue(cell));
+							break;
+						case 6:
+							student.setTenlop((String) getCellValue(cell));
+							break;
 
-				case 7:
-					student.setDthoai((String) String.valueOf(getCellValue(cell)));
-					break;
-				case 8:
-					student.setEmail((String) getCellValue(cell));
-					break;
-				case 9:
-					student.setQuequan((String) getCellValue(cell));
-					break;
-				case 10:
-					student.setGhichu((String) getCellValue(cell));
-					break;
+						case 7:
+							student.setDthoai((String) String.valueOf(getCellValue(cell)));
+							break;
+						case 8:
+							student.setEmail((String) getCellValue(cell));
+							break;
+						case 9:
+							student.setQuequan((String) getCellValue(cell));
+							break;
+						case 10:
+							student.setGhichu((String) getCellValue(cell));
+							break;
+						}
+					}
+					listStudents.add(student);
 				}
+//				if (columnIndex == number_column) {
+//
+//				} else {
+//					System.out.println("Dữ liệu không trùng khớp");
+//					return null;
+//				}
 			}
-			listStudents.add(student);
 		}
 		workBook.close();
 		inputStream.close();
