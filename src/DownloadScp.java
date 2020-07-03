@@ -21,6 +21,47 @@ public class DownloadScp {
 		}
 	}
  
+	public static void downloadFileScp(String hostname,int port,String username,String pwd,String remotePath,String localPath) {
+		CkSsh ssh = new CkSsh();
+		CkGlobal ck = new CkGlobal();
+		ck.UnlockBundle("Waiting...............");
+		boolean success = ssh.Connect(hostname, port);
+		if (success != true) {
+			System.out.println(ssh.lastErrorText());
+			return;
+		}
+
+		ssh.put_IdleTimeoutMs(5000);
+		success = ssh.AuthenticatePw(username, pwd);
+		if (success != true) {
+			System.out.println(ssh.lastErrorText());
+			return;
+		}
+		CkScp scp = new CkScp();
+
+		success = scp.UseSsh(ssh);
+		if (success != true) {
+			System.out.println(scp.lastErrorText());
+			return;
+		}
+//		scp.put_SyncMustMatch("sinhvien*.*");//down tat ca cac file bat dau bang sinhvien sao ko chay dong` nay? phan down nay dang test
+		scp.put_SyncMustMatch("*.*");// download tat ca cac file
+		success = scp.SyncTreeDownload(remotePath, localPath, 2, false);
+		if (success != true) {
+			System.out.println(scp.lastErrorText());
+			return;
+		} else {
+			try {
+					logDownloadFile(new File(localPath));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		System.out.println("success download file");
+		ssh.Disconnect();
+	}
+	
 	public static void logDownloadFile(File folder) throws Exception {
 		// chua kiem tra local_path da ton tai hay chua
 		Connection conn = new GetConnection().getConnection("control");
@@ -50,49 +91,11 @@ public class DownloadScp {
 	}
 
 	public static void main(String argv[]) {
-		CkSsh ssh = new CkSsh();
-		CkGlobal ck = new CkGlobal();
-		ck.UnlockBundle("Hello Phan Tran Cong Thanh");
-		String hostname = "drive.ecepvn.org";
-		int port = 2227;
-		boolean success = ssh.Connect(hostname, port);
-		if (success != true) {
-			System.out.println(ssh.lastErrorText());
-			return;
-		}
-
-		ssh.put_IdleTimeoutMs(5000);
-		success = ssh.AuthenticatePw("guest_access", "123456");
-		if (success != true) {
-			System.out.println(ssh.lastErrorText());
-			return;
-		}
-		CkScp scp = new CkScp();
-
-		success = scp.UseSsh(ssh);
-		if (success != true) {
-			System.out.println(scp.lastErrorText());
-			return;
-		}
-		scp.put_SyncMustMatch("sinhvien*.*");//down tat ca cac file bat dau bang sinhvien sao ko chay dong` nay? phan down nay dang test
-//		scp.put_SyncMustMatch("*.*");// download tat ca cac file
+		// thu muc nguon
 		String remotePath = "/volume1/ECEP/song.nguyen/DW_2020/data";
-		String localPath = "D:\\data"; // vi tri file dich
-		success = scp.SyncTreeDownload(remotePath, localPath, 2, false);
-		if (success != true) {
-			System.out.println(scp.lastErrorText());
-			return;
-		} else {
-			try {
-					logDownloadFile(new File(localPath));
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-//		System.out.println("success download file");
-		ssh.Disconnect();
-
+		// thu muc dich
+//		String localPath = "D:\\data"; 
+		String localPath = "D:/CNTT/DataWarehouse";
+		downloadFileScp(myConFig.HOST_NAME, myConFig.HOST_PORT, myConFig.LOGIN, myConFig.PASS, remotePath, localPath);
 	}
 }
