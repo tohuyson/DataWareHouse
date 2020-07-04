@@ -11,31 +11,29 @@ import connect.GetConnection;
 
 public class StagingtoWarehouse {
 	public static void LoadStagingtoWarehouse() throws Exception {
-//		Connection connSoure = MySQLConnectionSoure.connect();
 
-//		Kết nối databasecontroll để lấy dữ liệu
+//		1. Kết nối databasecontroll để lấy dữ liệu
 		Connection connControll = new GetConnection().getConnection("control");
-//		
 
-//		Kết nối table my_configs
+//		2. Kết nối table my_configs
 		String sqlcontroll = "select * from my_configs";
 		PreparedStatement psControll = (PreparedStatement) connControll.prepareStatement(sqlcontroll);
+
+//		3. trả về ResultSet 
 		ResultSet rscontroll = psControll.executeQuery();
 
 		String nameTable = "";
 		String field = "";
 		String datatype = "";
 
+//		4. duyệt từng dòng trong ResultSet
 		while (rscontroll.next()) {
 			field = rscontroll.getString("field");
 			nameTable = rscontroll.getString("name_table_warehouse");
 			datatype = rscontroll.getString("type_warehouse");
 		}
-		System.out.println(nameTable);
-		System.out.println(field);
-		System.out.println(datatype);
-//
-//		cắt file lấy từ databasecontroll xuống
+
+//		5. cắt field lấy từ databasecontroll xuống
 		StringTokenizer strToField = new StringTokenizer(field, ",");
 		String arrField[] = new String[11];
 		int k = 0;
@@ -44,9 +42,8 @@ public class StagingtoWarehouse {
 			arrField[k] = strToField.nextToken();
 			k++;
 		}
-		System.out.println(arrField[10]);
 
-//		cắt datatype lấy từ databasecontroll xuống
+//		6. cắt datatype lấy từ databasecontroll xuống
 		StringTokenizer strToDataType = new StringTokenizer(datatype, ",");
 		String arrDataType[] = new String[11];
 		int l = 0;
@@ -55,11 +52,11 @@ public class StagingtoWarehouse {
 			arrDataType[l] = strToDataType.nextToken();
 			l++;
 		}
-		System.out.println(arrDataType[1]);
 
-		String sqlSoure = "SELECT * FROM " + nameTable;
+// 		7. kết nối data warehouse		
+		Connection connWareHouse = new GetConnection().getConnection("warehouse");
 
-//		Khởi tạo table trong datawarehouse
+//		8. Khởi tạo query tạo table trong datawarehouse
 		String sqlDest = "CREATE TABLE " + nameTable + "( " + arrField[0] + " " + arrDataType[0]
 				+ " Not null AUTO_INCREMENT , " + arrField[1] + " " + arrDataType[1] + ", " + arrField[2] + " "
 				+ arrDataType[3] + "," + arrField[3] + " " + arrDataType[3] + "," + arrField[4] + " " + arrDataType[4]
@@ -68,20 +65,22 @@ public class StagingtoWarehouse {
 				+ " " + arrDataType[9] + "," + arrField[10] + " " + arrDataType[10] + ", PRIMARY KEY (" + arrField[0]
 				+ "))";
 
-// kết nối datawarehouse		
-		Connection connWareHouse = new GetConnection().getConnection("warehouse");
-		Connection connStaging = new GetConnection().getConnection("staging");
+//		9. Thực hiện câu query tạo table warehouse
 		PreparedStatement pSDataWH;
-		PreparedStatement pSStaging;
-//		pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlDest);
-//		pSDataWH.execute();
+		pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlDest);
+		pSDataWH.execute();
 
+//		10. tạo query insert into dữ liệu vào table dataware
 		String sqlLoadWarehouse = "insert into " + nameTable + "(" + arrField[1] + "," + arrField[2] + "," + arrField[3]
 				+ "," + arrField[4] + "," + arrField[5] + "," + arrField[6] + "," + arrField[7] + "," + arrField[8]
 				+ "," + arrField[9] + "," + arrField[10] + ")" + " value(?,?,?,?,?,?,?,?,?,?)";
 		pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlLoadWarehouse);
 
-//		kết nối table my_logs
+//		11. kết nối database staging
+		Connection connStaging = new GetConnection().getConnection("staging");
+		PreparedStatement pSStaging;
+
+//		12. kết nối table my_logs trong data control
 		String sqlcontrolllog = "select * from my_logs";
 		PreparedStatement psControlllog = (PreparedStatement) connControll.prepareStatement(sqlcontrolllog);
 		ResultSet rscontrolllog = psControlllog.executeQuery();
@@ -155,6 +154,12 @@ public class StagingtoWarehouse {
 				psControlllog.executeUpdate();
 			}
 		}
+	}
+
+	public static void loadDataStagingtoWarehouse() throws Exception {
+//		1. kết nối data control
+		Connection connControl = new GetConnection().getConnection("control");
+		
 	}
 
 	public static void main(String[] args) throws Exception {
