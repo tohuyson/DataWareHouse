@@ -62,7 +62,7 @@ public class GetConnection {
 		}
 //			Class.forName(driver).newInstance();
 		String connectionURL = url + databasebName + "?useUnicode=yes&characterEncoding=UTF-8";
-		System.out.println(connectionURL);
+//		System.out.println(connectionURL);
 		try {
 			result = DriverManager.getConnection(connectionURL, user, pass);
 		} catch (SQLException e) {
