@@ -12,7 +12,7 @@ import connect.GetConnection;
 public class StagingtoWarehouse {
 	public static void LoadStagingtoWarehouse() throws Exception {
 
-//		1. Kết nối databasecontroll để lấy dữ liệu
+//		1. Kết nối databasecontroll để lấy dữ liệu.
 		Connection connControll = new GetConnection().getConnection("control");
 
 //		2. Kết nối table my_configs
