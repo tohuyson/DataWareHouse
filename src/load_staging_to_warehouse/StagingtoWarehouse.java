@@ -65,7 +65,7 @@ public class StagingtoWarehouse {
 				+ " " + arrDataType[9] + "," + arrField[10] + " " + arrDataType[10] + ", PRIMARY KEY (" + arrField[0]
 				+ "))";
 
-//		9. Thực hiện câu query tạo table warehouse
+//		9. Thực hiện câu query tạo table trong warehouse
 		PreparedStatement pSDataWH;
 		pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlDest);
 		pSDataWH.execute();
