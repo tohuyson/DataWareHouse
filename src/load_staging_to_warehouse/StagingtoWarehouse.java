@@ -70,7 +70,7 @@ public class StagingtoWarehouse {
 		pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlDest);
 		pSDataWH.execute();
 
-//		10. tạo query insert into dữ liệu vào table dataware
+//		10. tạo query insert into dữ liệu vào table datawarehouse
 		String sqlLoadWarehouse = "insert into " + nameTable + "(" + arrField[1] + "," + arrField[2] + "," + arrField[3]
 				+ "," + arrField[4] + "," + arrField[5] + "," + arrField[6] + "," + arrField[7] + "," + arrField[8]
 				+ "," + arrField[9] + "," + arrField[10] + ")" + " value(?,?,?,?,?,?,?,?,?,?)";
