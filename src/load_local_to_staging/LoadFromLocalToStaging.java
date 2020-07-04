@@ -16,11 +16,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.mysql.jdbc.PreparedStatement;
@@ -32,16 +31,21 @@ public class LoadFromLocalToStaging {
 
 	public static void main(String[] args) throws Exception {
 		new LoadFromLocalToStaging().staging("my_logs.status_download = 'OK Download'");
-		// new LoadFromLocalToStaging().readStudentsFromTXTOrCSV("E:\\23.
-		// DataWarehouse\\baitap\\17130044_sang_nhom8.txt",
-		// 11);
-		// new LoadFromLocalToStaging().record_count();
+		// new LoadFromLocalToStaging().readStudentsFromFile(new
+		// File("D:\\Data\\17130044_sang_nhom8.txt"),11);
+
 	}
 
 	public void staging(String condition) throws Exception {
-		Connection conn = null;
+		Connection connect_control = null;
 		PreparedStatement pre_control = null;
+		String sql_update;
+		String sql_insert;
+		PreparedStatement pre_staging = null;
+		int count = 0;
+
 		try {
+<<<<<<< HEAD
 			// connect database control
 			conn = new GetConnection().getConnection("control");
 			// Má»Ÿ káº¿t ná»‘i DB staging
@@ -49,30 +53,59 @@ public class LoadFromLocalToStaging {
 			// TÃ¬m cÃ¡c file OK Download
 			pre_control = (PreparedStatement) conn.prepareStatement(
 					"SELECT my_logs.id ,my_logs.name_file_local, my_configs.name_table_staging ,my_configs.colum_table_staging, my_logs.local_path,my_logs.extension,my_logs.status_stagging"
+=======
+			// lấy ra các file có trạng thái OK download
+			// 1.connect database control
+			connect_control = new GetConnection().getConnection("control");
+			// 2.connect database DB staging
+			Connection conn_Staging = new GetConnection().getConnection("staging");
+			// 3. Kiểm tra các file OK Download
+			pre_control = (PreparedStatement) connect_control.prepareStatement(
+					"SELECT my_logs.id ,my_logs.name_file_local, my_configs.name_table_staging ,my_configs.colum_table_staging, my_logs.local_path,my_logs.extension,my_logs.status_stagging,my_logs.status_warehouse"
+>>>>>>> 3667bcc3ce9a1b2f506253f23a0e8537f12c337d
 							+ " from my_logs JOIN my_configs on my_logs.id_config= my_configs.id" + " where "
 							+ condition);
 			ResultSet re = pre_control.executeQuery();
 			while (re.next()) {
 				int id = re.getInt("id");
-				String name_table_staging = re.getString("name_table_staging");
 				String dir = re.getString("local_path");
 				String filename = re.getString("name_file_local");
 				String extend = re.getString("extension");
+				String name_table_staging = re.getString("name_table_staging");
 				int number_column = re.getInt("colum_table_staging");
 				String status_staging = re.getString("status_stagging");
+				String status_warehouse = re.getString("status_warehouse");
 
-				// Kiá»ƒm tra file cÃ³ tá»“n táº¡i trÃªn folder khÃ´ng
+				// load dữ liệu
+				// 4. Kiểm tra file có tồn tại trong folder hay không
 				String path = dir + filename + extend;
 				System.out.println(path);
 				File file = new File(path);
 				if (!file.exists()) {
+<<<<<<< HEAD
 					System.out.println(path + " \tkhông tồn tại");
 					String sql2 = "UPDATE my_logs SET "
+=======
+					// thông báo file không tồn tại, cập nhật xuống database
+					System.out.println(file + " \tkhông tồn tại");
+					sql_update = "UPDATE my_logs SET "
+>>>>>>> 3667bcc3ce9a1b2f506253f23a0e8537f12c337d
 							+ "my_logs.status_stagging='ERROR Staging', my_logs.date_time_staging=now() WHERE id=" + id;
-					pre_control = (PreparedStatement) conn.prepareStatement(sql2);
+					pre_control = (PreparedStatement) connect_control.prepareStatement(sql_update);
 					pre_control.executeUpdate();
-				} else if (status_staging.equals("OK Staging")) {
-					System.out.println("File done load");
+					// nếu tồn tại
+				} else
+				// kiểm tra đã load lên warehouse chưa thì xóa hết dữ liệu
+				if (status_warehouse.equals("OK Warehouse")) {
+					String sql_truncate = "TRUNCATE TABLE " + name_table_staging;
+					pre_control = (PreparedStatement) conn_Staging.prepareStatement(sql_truncate);
+					pre_control.executeUpdate();
+					System.out.println("File done load to warehouse");
+
+				} else
+				// kiểm tra file đã đk load chưa
+				if (status_staging.equals("OK Staging")) {
+					System.out.println("File done load to staging");
 				} else {
 					try {
 
@@ -80,6 +113,7 @@ public class LoadFromLocalToStaging {
 							System.out.println("bỏ qua");
 							continue;
 						}
+<<<<<<< HEAD
 						PreparedStatement ps;
 						int count = 0;
 						List<Student> listStudent = null;
@@ -100,37 +134,33 @@ public class LoadFromLocalToStaging {
 						String sql = "INSERT INTO " + name_table_staging
 								+ "(id,ma_sinhvien, ho_lot,ten, ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 						ps = (PreparedStatement) conn_Staging.prepareStatement(sql);
+=======
+						//////////////////////////////////////////// main//////////////////////////////////////////////////////////
+						String listStudent = "";
+						System.out.println("===========================================");
+						if (extend.equals(".xlsx")) {
+							// 6. Mở file để lấy dữ liệu
+							// file excel thì chuyển sang file csv
+							System.out.println("Start loading file excel............");
+							listStudent = loadingExcel(path, number_column);
+						} else if (extend.equals(".txt") || extend.equals(".csv")) {
+							System.out.println("Start ............");
+							listStudent = readStudentsFromFile(file, number_column);
+						}
 
-						listStudent.remove(0);
-						int stt = 0;
-						int record = record_count();
-						for (Student student : listStudent) {
-							stt = Integer.parseInt(student.getStt());
-							if (record == 0) {
-								stt = record;
-							} else {
-								record++;
-								stt = record;
-							}
-							ps.setString(1, String.valueOf(stt));
-							ps.setString(2, student.getMasv());
-							ps.setString(3, student.getHolot());
-							ps.setString(4, student.getTen());
-							ps.setString(5, student.getNgaysinh());
-							ps.setString(6, student.getMalop());
-							ps.setString(7, student.getTenlop());
+						// có dl k???
+						if (!listStudent.isEmpty()) {
+							// insert tất cả các student vào bảng staging
+>>>>>>> 3667bcc3ce9a1b2f506253f23a0e8537f12c337d
 
-							ps.setString(8, student.getDthoai());
-							ps.setString(9, student.getEmail());
-							ps.setString(10, student.getQuequan());
-							ps.setString(11, student.getGhichu());
-							ps.addBatch();
-							// LÆ°u sá»‘ dÃ²ng load thÃ nh cÃ´ng
-							count += ps.executeUpdate();
-							stt++;
+							sql_insert = "INSERT INTO " + name_table_staging + " VALUES " + listStudent;
+							pre_staging = (PreparedStatement) conn_Staging.prepareStatement(sql_insert);
+							// Lưu lại số dòng load thành công
+							count += pre_staging.executeUpdate();
 						}
 
 						System.out.println("Load staging successfully:\t" + "file : " + filename
+<<<<<<< HEAD
 								+ " ----> sá»‘ dÃ²ng load thÃ nh cÃ´ng: " + count);
 						String sql_update_record;
 						if (record == 0) {
@@ -145,28 +175,37 @@ public class LoadFromLocalToStaging {
 						pre_control.executeUpdate();
 						// Kiá»ƒm tra sá»‘ dÃ²ng Ä‘á»�c Ä‘Æ°á»£c vÃ o staging cá»§a file
 						String sql2;
+=======
+								+ " ----> Số dòng load thành công: " + count);
+						// String sql_update;
+>>>>>>> 3667bcc3ce9a1b2f506253f23a0e8537f12c337d
 						if (count > 0) {
-							sql2 = "UPDATE my_logs SET load_row_stagging=" + count + ", "
+							// update trạng thái đã load
+							sql_update = "UPDATE my_logs SET load_row_stagging=" + count + ", "
 									+ "status_stagging='OK Staging', my_logs.date_time_staging=now()  WHERE id=" + id;
 						} else {
-
-							sql2 = "UPDATE my_logs SET my_logs.load_row_stagging =" + count + ", "
+							// k load
+							sql_update = "UPDATE my_logs SET my_logs.load_row_stagging =" + count + ", "
 									+ " my_logs.status_stagging='ERROR Staging', my_logs.date_time_staging=now()  WHERE id="
 									+ id;
 						}
-						pre_control = (PreparedStatement) conn.prepareStatement(sql2);
+						pre_control = (PreparedStatement) connect_control.prepareStatement(sql_update);
 						pre_control.executeUpdate();
+<<<<<<< HEAD
 						}
+=======
+						// }
+>>>>>>> 3667bcc3ce9a1b2f506253f23a0e8537f12c337d
 					} catch (IOException e) {
 						throw new RemoteException(e.getMessage(), e);
 					}
 				}
 
 			}
-			// Ä�Ã³ng káº¿t ná»‘i
+			// Đóng kết nối
 			re.close();
 			pre_control.close();
-			conn.close();
+			connect_control.close();
 
 		} catch (
 
@@ -175,6 +214,7 @@ public class LoadFromLocalToStaging {
 		}
 	}
 
+<<<<<<< HEAD
 	private boolean excuteDataNotTrueFiled(String path, int number_column) {
 
 		return true;
@@ -203,15 +243,20 @@ public class LoadFromLocalToStaging {
 
 	private List<Student> readStudentsFromTXTOrCSV(String path, int number_column) throws RemoteException {
 		List<Student> listStudents = new ArrayList<Student>();
+=======
+	private String readStudentsFromFile(File file, int number_column) throws RemoteException {
+		String listStudents = "";
+>>>>>>> 3667bcc3ce9a1b2f506253f23a0e8537f12c337d
 		try {
 			bufferedReader = new BufferedReader(
-					new InputStreamReader(new FileInputStream(path), Charset.forName("UTF-8")));
-			String lineText;
+					new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
 			try {
-				// bá»� header
-				lineText = bufferedReader.readLine();
-				while ((lineText = bufferedReader.readLine()) != null) {
+				// đọc bỏ header
+				System.out.println("Header:" + bufferedReader.readLine());
+				String lineText = bufferedReader.readLine();
+				while (lineText != null) {
 					StringTokenizer tokenizer = new StringTokenizer(lineText, ",|");
+<<<<<<< HEAD
 //					System.out.println(number_column);
 					String[] data = new String[number_column];
 
@@ -237,11 +282,29 @@ public class LoadFromLocalToStaging {
 						student.setEmail(data[8]);
 						student.setQuequan(data[9]);
 						student.setGhichu(data[10]);
+=======
+					System.out.println(" Số value_column read: " + tokenizer.countTokens());
+					if (tokenizer.countTokens() == number_column) {
+						listStudents += "('" + tokenizer.nextToken() + "'";
+						while (tokenizer.hasMoreTokens()) {
+							// lấy giá trị tại cột của hàng được chỉ định
+							listStudents += ", N'" + tokenizer.nextToken() + "'";
+						}
+						listStudents += "), ";
+>>>>>>> 3667bcc3ce9a1b2f506253f23a0e8537f12c337d
 					}
-					listStudents.add(student);
-					int c = data.length;
-					// System.out.println("");
+					lineText = bufferedReader.readLine();
+					System.out.println("Student: " + lineText);
 				}
+				if (listStudents.isEmpty()) {
+					System.out.println("Dữ liệu rỗng");
+					return "";
+				} else {
+					listStudents = listStudents.substring(0, listStudents.lastIndexOf(","));
+					listStudents += ";";
+					System.out.println(listStudents.toString());
+				}
+				bufferedReader.close();
 			} catch (IOException e) {
 				throw new RemoteException(e.getMessage(), e);
 			}
@@ -251,6 +314,7 @@ public class LoadFromLocalToStaging {
 		return listStudents;
 	}
 
+<<<<<<< HEAD
 	public List<Student> readStudentsFromExcelFile(String excelFilePath, int number_column) throws IOException {
 		List<Student> listStudents = new ArrayList<Student>();
 		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
@@ -325,29 +389,67 @@ public class LoadFromLocalToStaging {
 		inputStream.close();
 		return listStudents;
 	}
+=======
+	private String loadingExcel(String fileName, int number_column) throws InvalidFormatException, IOException {
+		FileInputStream fileInStream = new FileInputStream(fileName);
+		int sheetIdx = 0;
+		// Open the xlsx and get the requested sheet from the workbook
+		XSSFWorkbook workBook = new XSSFWorkbook(fileInStream);
+		XSSFSheet selSheet = workBook.getSheetAt(sheetIdx);
 
-	private Object getCellValue(Cell cell) {
-		switch (cell.getCellType()) {
-		case STRING:
-			return cell.getStringCellValue();
-		case NUMERIC:
-			return (int) cell.getNumericCellValue();
-		default:
-			cell.getStringCellValue();
-			break;
-		}
-		return cell.getStringCellValue();
-	}
+		// Iterate through all the rows in the selected sheet
+		Iterator<Row> rowIterator = selSheet.iterator();
+		List<String> listStudents = new ArrayList<String>();
+		while (rowIterator.hasNext()) {
 
-	private Workbook getWorkbook(FileInputStream inputStream, String excelFilePath) throws IOException {
-		Workbook workbook = null;
-		if (excelFilePath.endsWith("xlsx")) {
-			workbook = new XSSFWorkbook(inputStream);
-		} else if (excelFilePath.endsWith("xls")) {
-			workbook = new HSSFWorkbook(inputStream);
-		} else {
-			throw new IllegalArgumentException("The specified file is not Excel file");
+			Row row = rowIterator.next();
+
+			// Iterate through all the columns in the row and build ","
+			// separated string
+			Iterator<Cell> cellIterator = row.cellIterator();
+			// System.out.println(" count " +selSheet.getRow(0).getLastCellNum());
+			if (selSheet.getRow(0).getLastCellNum() == number_column) {
+				String student_item = "(";
+
+				while (cellIterator.hasNext()) {
+					Cell cell = cellIterator.next();
+
+					switch (cell.getCellType()) {
+					case STRING:
+						String value = "";
+						value = cell.getStringCellValue().replaceAll("'", "");
+						System.out.println(value);
+						student_item += "N'" + value + "'";
+						break;
+					case NUMERIC:
+						student_item += "'" + cell.getNumericCellValue() + "'";
+						break;
+					case BOOLEAN:
+						student_item += "N'" + cell.getBooleanCellValue() + "'";
+						break;
+					default:
+						student_item += "'-1'";
+					}
+					if (cell.getColumnIndex() == number_column - 1) {
+						// bỏ dấu phẩy cuối
+					} else
+						student_item += ",";
+				}
+				student_item += ")\n";
+				listStudents.add(student_item);
+>>>>>>> 3667bcc3ce9a1b2f506253f23a0e8537f12c337d
+
+			}
 		}
-		return workbook;
+		listStudents.remove(0);
+		String sql_students = "";
+		for (int i = 0; i < listStudents.size(); i++) {
+			sql_students += listStudents.get(i) + ",";
+		}
+		sql_students = sql_students.substring(0, sql_students.lastIndexOf(","));
+		sql_students += ";";
+		// System.out.println(sql_students);
+		workBook.close();
+		return sql_students;
 	}
 }
