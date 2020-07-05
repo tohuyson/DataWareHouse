@@ -67,22 +67,22 @@ public class LoadFromLocalToStaging {
 				String status_staging = re.getString("status_stagging");
 				String status_warehouse = re.getString("status_warehouse");
 
-				// 4. Kiểm tra file có tồn tại trong folder hay không
+				// 6. Kiểm tra file có tồn tại trong folder hay không
 				String path = dir + filename + extend;
 				System.out.println(path);
 				File file = new File(path);
 				// nếu không tồn tại
 				if (!file.exists()) {
-					// 4.1: thông báo file không tồn tại
+					// 6.1: thông báo file không tồn tại
 					System.out.println(file + " \tkhông tồn tại");
-					// 4.1.1: cập nhật xuống database
+					// 6.1.1: cập nhật xuống database
 					sql_update = "UPDATE my_logs SET "
 							+ "my_logs.status_stagging='ERROR Staging', my_logs.date_time_staging=now() WHERE id=" + id;
 					pre_control = (PreparedStatement) connect_control.prepareStatement(sql_update);
 					pre_control.executeUpdate();
 				} else
 				// nếu tồn tại
-				// 5. kiểm tra đã load lên warehouse chưa thì xóa hết dữ liệu
+				// 7. kiểm tra đã load lên warehouse chưa thì xóa hết dữ liệu
 				if (status_warehouse.equals("OK Warehouse")) {
 					String sql_truncate = "TRUNCATE TABLE " + name_table_staging;
 					pre_control = (PreparedStatement) conn_Staging.prepareStatement(sql_truncate);
@@ -90,14 +90,14 @@ public class LoadFromLocalToStaging {
 					System.out.println("File done load to warehouse");
 
 				} else
-				// 6. kiểm tra file đã được load vào staging chưa
+				// 8. kiểm tra file đã được load vào staging chưa
 				if (status_staging.equals("OK Staging")) {
 					System.out.println("File done load to staging");
 				} else {
 					try {
 
-						// 7. Kiểm tra loại file
-						// 7.1. Nếu là file đuôi osheet thì bỏ qa không đọc
+						// 9. Kiểm tra loại file
+						// 9.1. Nếu là file đuôi osheet thì bỏ qa không đọc
 						if (extend.equals(".osheet")) {
 							System.out.println("bỏ qua");
 							continue;
@@ -105,27 +105,27 @@ public class LoadFromLocalToStaging {
 						//////////////////////////////////////////// main//////////////////////////////////////////////////////////
 						String listStudent = "";
 						System.out.println("===========================================");
-						// 7.2: Nếu là file excel
+						// 9.2: Nếu là file excel
 						if (extend.equals(".xlsx")) {
 							System.out.println("Start loading file excel............");
 							// Load dữ liệu kiểu excel
 							listStudent = loadingExcel(path, number_column);
 
 						} else
-						//7.3 :Nếu là file txt hoặc csv
+						// 9.3 :Nếu là file txt hoặc csv
 						if (extend.equals(".txt") || extend.equals(".csv")) {
 							System.out.println("Start ............");
 							// Load dữ liệu kiểu txt,csv
 							listStudent = readStudentsFromFile(file, number_column);
 						}
 
-						//8. kiểm tra dữ liệu load từ file có record thỏa mãn
+						// 10. kiểm tra dữ liệu load từ file có record thỏa mãn
 						if (!listStudent.isEmpty()) {
-							//9. insert tất cả các student vào bảng staging
+							// 11. insert tất cả các student vào bảng staging
 
 							sql_insert = "INSERT INTO " + name_table_staging + " VALUES " + listStudent;
 							pre_staging = (PreparedStatement) conn_Staging.prepareStatement(sql_insert);
-							//10. Đếm số dòng load thành công, thông báo ra màn hình
+							// 12. Đếm số dòng load thành công, thông báo ra màn hình
 							count += pre_staging.executeUpdate();
 						}
 
@@ -133,11 +133,11 @@ public class LoadFromLocalToStaging {
 								+ " ----> Số dòng load thành công: " + count);
 						// String sql_update;
 						if (count > 0) {
-							//10.1: update trạng thái load thành công, thời gian load và số dòng đã load
+							// 12.1: update trạng thái load thành công, thời gian load và số dòng đã load
 							sql_update = "UPDATE my_logs SET load_row_stagging=" + count + ", "
 									+ "status_stagging='OK Staging', my_logs.date_time_staging=now()  WHERE id=" + id;
 						} else {
-							//10.2.  update trạng thái load thất bại, thời gian load và số dòng đã load=0
+							// 12.2. update trạng thái load thất bại, thời gian load và số dòng đã load=0
 							sql_update = "UPDATE my_logs SET my_logs.load_row_stagging =" + count + ", "
 									+ " my_logs.status_stagging='ERROR Staging', my_logs.date_time_staging=now()  WHERE id="
 									+ id;
@@ -151,7 +151,7 @@ public class LoadFromLocalToStaging {
 				}
 
 			}
-			//11. Đóng kết nối
+			// 13. Đóng kết nối
 			re.close();
 			pre_control.close();
 			connect_control.close();
@@ -166,22 +166,23 @@ public class LoadFromLocalToStaging {
 	private String readStudentsFromFile(File file, int number_column) throws RemoteException {
 		String listStudents = "";
 		try {
-			//7.3.1: Mở file đọc dữ liệu kèm định dạng Charset UTF-8
+			// 9.3.1: Mở file đọc dữ liệu kèm định dạng Charset UTF-8
 			bufferedReader = new BufferedReader(
 					new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
 			try {
-				//7.3.2: Đọc bỏ header
+				// 9.3.2: Đọc bỏ header
 				System.out.println("Header:" + bufferedReader.readLine());
 				String lineText = bufferedReader.readLine();
-				//7.3.3: Đọc từng dòng trong file
+				// 9.3.3: Đọc từng dòng trong file
 				while (lineText != null) {
-					//7.3.4:  Cắt từng thuộc tính và đếm tổng thuộc tính trong từng dòng
+					// 9.3.4: Cắt từng thuộc tính và đếm tổng thuộc tính trong từng dòng
 					StringTokenizer tokenizer = new StringTokenizer(lineText, ",|");
 					System.out.println(" Số value_column read: " + tokenizer.countTokens());
 					if (tokenizer.countTokens() == number_column) {
 						listStudents += "('" + tokenizer.nextToken() + "'";
 						while (tokenizer.hasMoreTokens()) {
-							//7.3.5: lấy giá trị tại từng cột của hàng được chỉ định theo định dạng sql để insert
+							// 9.3.5: lấy giá trị tại từng cột của hàng được chỉ định theo định dạng sql để
+							// insert
 							listStudents += ", N'" + tokenizer.nextToken() + "'";
 						}
 						listStudents += "), ";
@@ -189,16 +190,17 @@ public class LoadFromLocalToStaging {
 					lineText = bufferedReader.readLine();
 					System.out.println("Student: " + lineText);
 				}
-				//7.3.6: Kiểm tra dữ liệu sinh viên
+				// 9.3.6: Kiểm tra dữ liệu sinh viên
 				if (listStudents.isEmpty()) {
 					System.out.println("Dữ liệu rỗng");
 					return "";
 				} else {
+					System.out.println("vào đây ");
 					listStudents = listStudents.substring(0, listStudents.lastIndexOf(","));
 					listStudents += ";";
-					System.out.println(listStudents.toString());
+					System.out.println("List ST: " + listStudents.toString());
 				}
-				//7.3.7: Đóng kết nối
+				// 9.3.7: Đóng kết nối
 				bufferedReader.close();
 			} catch (IOException e) {
 				throw new RemoteException(e.getMessage(), e);
@@ -212,20 +214,19 @@ public class LoadFromLocalToStaging {
 	private String loadingExcel(String fileName, int number_column) throws InvalidFormatException, IOException {
 		FileInputStream fileInStream = new FileInputStream(fileName);
 		int sheetIdx = 0;
-		// 7.2.1: Mở xlsx và lấy trang tính yêu cầu từ bảng tính
+		// 9.2.1: Mở xlsx và lấy trang tính yêu cầu từ bảng tính
 		XSSFWorkbook workBook = new XSSFWorkbook(fileInStream);
 		XSSFSheet selSheet = workBook.getSheetAt(sheetIdx);
 
-		//7.2.2: Lặp qua tất cả các hàng trong trang tính đã chọn
+		// 9.2.2: Lặp qua tất cả các hàng trong trang tính đã chọn
 		Iterator<Row> rowIterator = selSheet.iterator();
 		List<String> listStudents = new ArrayList<String>();
 		while (rowIterator.hasNext()) {
 
 			Row row = rowIterator.next();
 
-			// 7.2.3: Lặp qua tất cả các cột trong hàng và xây dựng ","  tách chuỗi
+			// 9.2.3: Lặp qua tất cả các cột trong hàng và xây dựng "," tách chuỗi
 
-			
 			Iterator<Cell> cellIterator = row.cellIterator();
 			// System.out.println(" count " +selSheet.getRow(0).getLastCellNum());
 			if (selSheet.getRow(0).getLastCellNum() == number_column) {
@@ -238,7 +239,7 @@ public class LoadFromLocalToStaging {
 					case STRING:
 						String value = "";
 						value = cell.getStringCellValue().replaceAll("'", "");
-						System.out.println(value);
+						// System.out.println(value);
 						student_item += "N'" + value + "'";
 						break;
 					case NUMERIC:
@@ -257,12 +258,11 @@ public class LoadFromLocalToStaging {
 				}
 				student_item += ")\n";
 				listStudents.add(student_item);
-
 			}
 		}
-		//7.2.4: Bỏ phần header
+		// 9.2.4: Bỏ phần header
 		listStudents.remove(0);
-		//7.2.5: Add tất cả sinh viên theo định dạng câu lệnh insert sql
+		// 9.2.5: Add tất cả sinh viên theo định dạng câu lệnh insert sql
 		String sql_students = "";
 		for (int i = 0; i < listStudents.size(); i++) {
 			sql_students += listStudents.get(i) + ",";
@@ -270,8 +270,9 @@ public class LoadFromLocalToStaging {
 		sql_students = sql_students.substring(0, sql_students.lastIndexOf(","));
 		sql_students += ";";
 		// System.out.println(sql_students);
-		//7.2.6: Đóng file
+		// 9.2.6: Đóng file
 		workBook.close();
+		System.out.println("List ST: " +sql_students);
 		return sql_students;
 	}
 }
