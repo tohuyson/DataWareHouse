@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.StringTokenizer;
 
+import com.mysql.jdbc.DatabaseMetaData;
 import com.mysql.jdbc.PreparedStatement;
 
 import connect.GetConnection;
@@ -64,27 +65,39 @@ public class StagingtoWarehouse {
 				+ arrField[7] + " " + arrDataType[7] + "," + arrField[8] + " " + arrDataType[8] + "," + arrField[9]
 				+ " " + arrDataType[9] + "," + arrField[10] + " " + arrDataType[10] + ", PRIMARY KEY (" + arrField[0]
 				+ "))";
-
-//		9. Thực hiện câu query tạo table warehouse
+//		9. check table có tồn tại hay không
 		PreparedStatement pSDataWH;
-//		pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlDest);
-//		pSDataWH.execute();
+		DatabaseMetaData checkCreateTable= (DatabaseMetaData) connWareHouse.getMetaData();
+		ResultSet table= checkCreateTable.getTables(null, null, nameTable, null);
+		if(table.next()) {
+			System.out.println("Table đã tồn tại");
+		}else {
+//		10. Thực hiện câu query tạo table warehouse
+			pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlDest);
+			pSDataWH.execute();
+			
+		}
+		
 
-//		10. tạo query insert into dữ liệu vào table dataware
+//		11. tạo query insert into dữ liệu vào table dataware
 		String sqlLoadWarehouse = "insert into " + nameTable + "(" + arrField[1] + "," + arrField[2] + "," + arrField[3]
 				+ "," + arrField[4] + "," + arrField[5] + "," + arrField[6] + "," + arrField[7] + "," + arrField[8]
 				+ "," + arrField[9] + "," + arrField[10] + ")" + " value(?,?,?,?,?,?,?,?,?,?)";
 		System.out.println(sqlLoadWarehouse);
 		pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlLoadWarehouse);
 
-//		11. kết nối database staging
-		Connection connStaging = new GetConnection().getConnection("staging");
-		PreparedStatement pSStaging;
-
-//		12. kết nối table my_logs trong data control
-		String sqlcontrolllog = "select * from my_logs";
-		PreparedStatement psControlllog = (PreparedStatement) connControll.prepareStatement(sqlcontrolllog);
-		ResultSet rscontrolllog = psControlllog.executeQuery();
+		
+		loadDataStagingtoWarehouse(sqlLoadWarehouse);
+		
+		
+////		11. kết nối database staging
+//		Connection connStaging = new GetConnection().getConnection("staging");
+//		PreparedStatement pSStaging;
+//
+////		12. kết nối table my_logs trong data control
+//		String sqlcontrolllog = "select * from my_logs";
+//		PreparedStatement psControlllog = (PreparedStatement) connControll.prepareStatement(sqlcontrolllog);
+//		ResultSet rscontrolllog = psControlllog.executeQuery();
 
 //		int record_start = 0;
 //		int record_end = 0;
@@ -157,83 +170,12 @@ public class StagingtoWarehouse {
 //		}
 	}
 
-	public static void field() throws Exception {
-//		1. Kết nối databasecontroll để lấy dữ liệu
-		Connection connControll = new GetConnection().getConnection("control");
-
-//		2. Kết nối table my_configs
-		String sqlcontroll = "select * from my_configs";
-		PreparedStatement psControll = (PreparedStatement) connControll.prepareStatement(sqlcontroll);
-
-//		3. trả về ResultSet 
-		ResultSet rscontroll = psControll.executeQuery();
-
-		String nameTable = "";
-		String field = "";
-		String datatype = "";
-
-//		4. duyệt từng dòng trong ResultSet
-		while (rscontroll.next()) {
-			field = rscontroll.getString("field");
-			nameTable = rscontroll.getString("name_table_warehouse");
-			datatype = rscontroll.getString("type_warehouse");
-		}
-
-//		5. cắt field lấy từ databasecontroll xuống
-		StringTokenizer strToField = new StringTokenizer(field, ",");
-		String arrField[] = new String[11];
-		int k = 0;
-		System.out.println(strToField.countTokens());
-		while (strToField.hasMoreElements()) {
-			arrField[k] = strToField.nextToken();
-			k++;
-		}
-	}
-
 	public static void loadDataStagingtoWarehouse(String sqlLoadWarehouse) throws Exception {
-//		1. kết nối data control
 		Connection connControl = new GetConnection().getConnection("control");
 		String sql = "select * from my_logs";
 		PreparedStatement prS = (PreparedStatement) connControl.prepareStatement(sql);
 		ResultSet rS = prS.executeQuery();
 
-//		2. Kết nối table my_configs
-		String sqlcontroll = "select * from my_configs";
-		PreparedStatement psControll = (PreparedStatement) connControl.prepareStatement(sqlcontroll);
-
-//		3. trả về ResultSet 
-		ResultSet rscontroll = psControll.executeQuery();
-
-		String nameTable = "";
-		String field = "";
-		String datatype = "";
-
-//		4. duyệt từng dòng trong ResultSet
-		while (rscontroll.next()) {
-			field = rscontroll.getString("field");
-			nameTable = rscontroll.getString("name_table_warehouse");
-			datatype = rscontroll.getString("type_warehouse");
-		}
-
-//		5. cắt field lấy từ databasecontroll xuống
-		StringTokenizer strToField = new StringTokenizer(field, ",");
-		String arrField[] = new String[11];
-		int k = 0;
-		System.out.println(strToField.countTokens());
-		while (strToField.hasMoreElements()) {
-			arrField[k] = strToField.nextToken();
-			k++;
-		}
-
-//		6. cắt datatype lấy từ databasecontroll xuống
-		StringTokenizer strToDataType = new StringTokenizer(datatype, ",");
-		String arrDataType[] = new String[11];
-		int l = 0;
-		System.out.println(strToDataType.countTokens());
-		while (strToDataType.hasMoreElements()) {
-			arrDataType[l] = strToDataType.nextToken();
-			l++;
-		}
 		Connection connWareHouse = new GetConnection().getConnection("warehouse");
 		PreparedStatement pSDataWH;
 		int check_Warehouse = -1;
@@ -246,16 +188,6 @@ public class StagingtoWarehouse {
 				int count = 0;
 				ResultSet rsStaging = pSStaging.executeQuery();
 				while (rsStaging.next()) {
-//					int mssv = rsStaging.getInt(arrField[1]);
-//					String ho_lot = rsStaging.getString((arrField[2]));
-//					String ten = rsStaging.getString((arrField[3]));
-//					String ngay_sinh = rsStaging.getString((arrField[4]));
-//					String ma_lop = rsStaging.getString((arrField[5]));
-//					String ten_lop = rsStaging.getString((arrField[6]));
-//					String dien_thoai = rsStaging.getString((arrField[7]));
-//					String email = rsStaging.getString((arrField[8]));
-//					String que_quan = rsStaging.getString((arrField[9]));
-//					String ghi_chu = rsStaging.getString((arrField[10]));
 					pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlLoadWarehouse);
 					pSDataWH.setInt(1, rsStaging.getInt("id"));
 					pSDataWH.setString(2, rsStaging.getNString("ho_lot"));
@@ -275,26 +207,27 @@ public class StagingtoWarehouse {
 				System.out.println(check_Warehouse + "dsd");
 				if (count > 0) {
 					String updateLog = "update my_logs set status_warehouse="
-							+ " 'OK Warehouse', date_time_warehouse= now(), load_row_warehouse="+count+" where id=" + id;
+							+ " 'OK Warehouse', date_time_warehouse= now(), load_row_warehouse=" + count + " where id="
+							+ id;
 					System.out.println(updateLog);
 					prS = (PreparedStatement) connControl.prepareStatement(updateLog);
 					prS.executeUpdate();
 				} else {
 					String updateLog = "update my_logs set status_warehouse="
-							+ " 'ERROR', date_time_warehouse= now() where id=" + id;
+							+ " 'ERROR', date_time_warehouse= now(), load_row_warehouse='-1' where id=" + id;
 					System.out.println(updateLog);
 					prS = (PreparedStatement) connControl.prepareStatement(updateLog);
 					prS.executeUpdate();
 				}
 			}
 		}
-
 	}
 
 	public static void main(String[] args) throws Exception {
 		try {
 //			LoadStagingtoWarehouse();
-			loadDataStagingtoWarehouse("insert into Students(Ma_sinhvien,Ho_lot,Ten,Ngay_sinh,Ma_lop,Ten_lop,Dien_thoai,Email,Que_quan,Ghi_chu) value(?,?,?,?,?,?,?,?,?,?)");
+			loadDataStagingtoWarehouse(
+					"insert into Students(Ma_sinhvien,Ho_lot,Ten,Ngay_sinh,Ma_lop,Ten_lop,Dien_thoai,Email,Que_quan,Ghi_chu) value(?,?,?,?,?,?,?,?,?,?)");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
