@@ -82,7 +82,7 @@ public class LoadFromLocalToStaging {
 					pre_control.executeUpdate();
 				} else
 				// nếu tồn tại
-				// 7. kiểm tra đã load lên warehouse chưa thì xóa hết dữ liệu
+				// 7. kiểm tra dữ liệu đã load lên warehouse chưa thì xóa hết dữ liệu
 				if (status_warehouse.equals("OK Warehouse")) {
 					String sql_truncate = "TRUNCATE TABLE " + name_table_staging;
 					pre_control = (PreparedStatement) conn_Staging.prepareStatement(sql_truncate);
