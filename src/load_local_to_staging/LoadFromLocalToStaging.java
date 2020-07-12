@@ -98,7 +98,7 @@ public class LoadFromLocalToStaging {
 
 						// 9. Kiểm tra loại file
 						// 9.1. Nếu là file đuôi osheet thì bỏ qa không đọc
-						if (extend.equals(".osheet")) {
+						if (extend.equals(".osheet") ) {
 							System.out.println("bỏ qua");
 							continue;
 						}
