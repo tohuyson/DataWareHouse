@@ -163,7 +163,7 @@ public class LoadFromLocalToStaging {
 		}
 	}
 
-	private String readStudentsFromFile(File file, int number_column) throws RemoteException {
+	public String readStudentsFromFile(File file, int number_column) throws RemoteException {
 		String listStudents = "";
 		try {
 			//7.3.1: Mở file đọc dữ liệu kèm định dạng Charset UTF-8
