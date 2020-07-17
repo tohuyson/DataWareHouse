@@ -83,10 +83,10 @@ public class StagingtoWarehouse {
 		String sqlLoadWarehouse = "insert into " + nameTable + "(" + arrField[1] + "," + arrField[2] + "," + arrField[3]
 				+ "," + arrField[4] + "," + arrField[5] + "," + arrField[6] + "," + arrField[7] + "," + arrField[8]
 				+ "," + arrField[9] + "," + arrField[10] + ")" + " value(?,?,?,?,?,?,?,?,?,?)";
-		System.out.println(sqlLoadWarehouse);
-		pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlLoadWarehouse);
-
+//		System.out.println(sqlLoadWarehouse);
+//		pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlLoadWarehouse);
 		
+//		12. load những dòng bên staging qua warehouse
 		loadDataStagingtoWarehouse(sqlLoadWarehouse);
 		
 		
@@ -225,6 +225,7 @@ public class StagingtoWarehouse {
 
 	public static void main(String[] args) throws Exception {
 		try {
+			
 //			LoadStagingtoWarehouse();
 			loadDataStagingtoWarehouse(
 					"insert into Students(Ma_sinhvien,Ho_lot,Ten,Ngay_sinh,Ma_lop,Ten_lop,Dien_thoai,Email,Que_quan,Ghi_chu) value(?,?,?,?,?,?,?,?,?,?)");
