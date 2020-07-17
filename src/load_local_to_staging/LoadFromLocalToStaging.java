@@ -51,7 +51,7 @@ public class LoadFromLocalToStaging {
 			Connection conn_Staging = new GetConnection().getConnection("staging");
 			// 3. Kiểm tra các file OK Download
 			pre_control = (PreparedStatement) connect_control.prepareStatement(
-					"SELECT my_logs.id ,my_logs.name_file_local, my_configs.name_table_staging ,my_configs.colum_table_staging, my_logs.local_path,my_logs.extension,my_logs.status_stagging,my_logs.status_warehouse"
+					"SELECT my_logs.id ,my_logs.name_file_local, my_configs.name_table_staging, my_configs.field ,my_configs.colum_table_staging, my_logs.local_path,my_logs.extension,my_logs.status_stagging,my_logs.status_warehouse"
 							+ " from my_logs JOIN my_configs on my_logs.id_config= my_configs.id" + " where "
 							+ condition);
 			// 4. Nhận ResultSet thỏa điều kiện
@@ -66,6 +66,7 @@ public class LoadFromLocalToStaging {
 				int number_column = re.getInt("colum_table_staging");
 				String status_staging = re.getString("status_stagging");
 				String status_warehouse = re.getString("status_warehouse");
+				String fields = re.getString("field");
 
 				// 6. Kiểm tra file có tồn tại trong folder hay không
 				String path = dir + filename + extend;
@@ -98,7 +99,7 @@ public class LoadFromLocalToStaging {
 
 						// 9. Kiểm tra loại file
 						// 9.1. Nếu là file đuôi osheet thì bỏ qa không đọc
-						if (extend.equals(".osheet") ) {
+						if (extend.equals(".osheet")) {
 							System.out.println("bỏ qua");
 							continue;
 						}
@@ -122,7 +123,7 @@ public class LoadFromLocalToStaging {
 						// 10. kiểm tra dữ liệu load từ file có record thỏa mãn
 						if (!listStudent.isEmpty()) {
 							// 11. insert tất cả các student vào bảng staging
-
+							// chạy thêm for field
 							sql_insert = "INSERT INTO " + name_table_staging + " VALUES " + listStudent;
 							pre_staging = (PreparedStatement) conn_Staging.prepareStatement(sql_insert);
 							// 12. Đếm số dòng load thành công, thông báo ra màn hình
@@ -156,9 +157,7 @@ public class LoadFromLocalToStaging {
 			pre_control.close();
 			connect_control.close();
 
-		} catch (
-
-		SQLException e) {
+		} catch (SQLException e) {
 			throw new RemoteException(e.getMessage(), e);
 		}
 	}
@@ -221,8 +220,9 @@ public class LoadFromLocalToStaging {
 		// 9.2.2: Lặp qua tất cả các hàng trong trang tính đã chọn
 		Iterator<Row> rowIterator = selSheet.iterator();
 		List<String> listStudents = new ArrayList<String>();
-		while (rowIterator.hasNext()) {
 
+		while (rowIterator.hasNext()) {
+			int temp = 0;
 			Row row = rowIterator.next();
 
 			// 9.2.3: Lặp qua tất cả các cột trong hàng và xây dựng "," tách chuỗi
@@ -231,30 +231,39 @@ public class LoadFromLocalToStaging {
 			// System.out.println(" count " +selSheet.getRow(0).getLastCellNum());
 			if (selSheet.getRow(0).getLastCellNum() == number_column) {
 				String student_item = "(";
+				// System.out.println("row " + row);
+				// while (cellIterator.hasNext()) {
+				while (temp < number_column) {
+					temp++;
+					if (cellIterator.hasNext()) {
 
-				while (cellIterator.hasNext()) {
-					Cell cell = cellIterator.next();
+						Cell cell = cellIterator.next();
+						// System.out.println("cell " + cell);
+						switch (cell.getCellType()) {
 
-					switch (cell.getCellType()) {
-					case STRING:
-						String value = "";
-						value = cell.getStringCellValue().replaceAll("'", "");
-						// System.out.println(value);
-						student_item += "N'" + value + "'";
-						break;
-					case NUMERIC:
-						student_item += "'" + cell.getNumericCellValue() + "'";
-						break;
-					case BOOLEAN:
-						student_item += "N'" + cell.getBooleanCellValue() + "'";
-						break;
-					default:
-						student_item += "'-1'";
-					}
-					if (cell.getColumnIndex() == number_column - 1) {
-						// bỏ dấu phẩy cuối
+						case STRING:
+							String value = "";
+							value = cell.getStringCellValue().replaceAll("'", "");
+							// System.out.println(value);
+							student_item += "N'" + value + "'";
+							break;
+						case NUMERIC:
+							student_item += "'" + cell.getNumericCellValue() + "'";
+							break;
+						case BOOLEAN:
+							student_item += "N'" + cell.getBooleanCellValue() + "'";
+							break;
+
+						default:
+							student_item += "'-1'";
+							break;
+						}
+						if (cell.getColumnIndex() == number_column - 1) {
+							// bỏ dấu phẩy cuối
+						} else
+							student_item += ",";
 					} else
-						student_item += ",";
+						student_item += "'-1'";
 				}
 				student_item += ")\n";
 				listStudents.add(student_item);
@@ -269,10 +278,11 @@ public class LoadFromLocalToStaging {
 		}
 		sql_students = sql_students.substring(0, sql_students.lastIndexOf(","));
 		sql_students += ";";
+
 		// System.out.println(sql_students);
 		// 9.2.6: Đóng file
 		workBook.close();
-		System.out.println("List ST: " +sql_students);
+		System.out.println("List ST: " + sql_students);
 		return sql_students;
 	}
 }
