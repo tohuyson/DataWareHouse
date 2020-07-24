@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -97,6 +98,12 @@ public class LoadFromLocalToStaging {
 				} else {
 					try {
 
+						// chạy thêm for field
+						System.out.println(" Fields: " + fields);
+
+						String temp = "(" + fields.replace("id,", "") + ")";
+						System.out.println("Temp       " + temp);
+
 						// 9. Kiểm tra loại file
 						// 9.1. Nếu là file đuôi osheet thì bỏ qa không đọc
 						if (extend.equals(".osheet")) {
@@ -110,7 +117,7 @@ public class LoadFromLocalToStaging {
 						if (extend.equals(".xlsx")) {
 							System.out.println("Start loading file excel............");
 							// Load dữ liệu kiểu excel
-							listStudent = loadingExcel(path, number_column);
+							 listStudent = loadingExcel(path, number_column);
 
 						} else
 						// 9.3 :Nếu là file txt hoặc csv
@@ -123,8 +130,8 @@ public class LoadFromLocalToStaging {
 						// 10. kiểm tra dữ liệu load từ file có record thỏa mãn
 						if (!listStudent.isEmpty()) {
 							// 11. insert tất cả các student vào bảng staging
-							// chạy thêm for field
-							sql_insert = "INSERT INTO " + name_table_staging + " VALUES " + listStudent;
+
+							sql_insert = "INSERT INTO " + name_table_staging + temp + " VALUES " + listStudent;
 							pre_staging = (PreparedStatement) conn_Staging.prepareStatement(sql_insert);
 							// 12. Đếm số dòng load thành công, thông báo ra màn hình
 							count += pre_staging.executeUpdate();
@@ -162,7 +169,7 @@ public class LoadFromLocalToStaging {
 		}
 	}
 
-	private String readStudentsFromFile(File file, int number_column) throws RemoteException {
+	public String readStudentsFromFile(File file, int number_column) throws RemoteException {
 		String listStudents = "";
 		try {
 			// 9.3.1: Mở file đọc dữ liệu kèm định dạng Charset UTF-8
@@ -177,7 +184,7 @@ public class LoadFromLocalToStaging {
 					// 9.3.4: Cắt từng thuộc tính và đếm tổng thuộc tính trong từng dòng
 					StringTokenizer tokenizer = new StringTokenizer(lineText, ",|");
 					System.out.println(" Số value_column read: " + tokenizer.countTokens());
-					if (tokenizer.countTokens() == number_column) {
+					if (tokenizer.countTokens() == number_column - 1) {
 						listStudents += "('" + tokenizer.nextToken() + "'";
 						while (tokenizer.hasMoreTokens()) {
 							// 9.3.5: lấy giá trị tại từng cột của hàng được chỉ định theo định dạng sql để
@@ -228,17 +235,16 @@ public class LoadFromLocalToStaging {
 			// 9.2.3: Lặp qua tất cả các cột trong hàng và xây dựng "," tách chuỗi
 
 			Iterator<Cell> cellIterator = row.cellIterator();
-			// System.out.println(" count " +selSheet.getRow(0).getLastCellNum());
-			if (selSheet.getRow(0).getLastCellNum() == number_column) {
-				String student_item = "(";
+//			 System.out.println(" count " +selSheet.getRow(1).getCell(0));
+			if (selSheet.getRow(0).getLastCellNum() == number_column - 1) {
+				String student_item = "("; 
 				// System.out.println("row " + row);
 				// while (cellIterator.hasNext()) {
-				while (temp < number_column) {
+				while (temp < number_column-1 ) {
 					temp++;
 					if (cellIterator.hasNext()) {
 
 						Cell cell = cellIterator.next();
-						// System.out.println("cell " + cell);
 						switch (cell.getCellType()) {
 
 						case STRING:
@@ -258,7 +264,7 @@ public class LoadFromLocalToStaging {
 							student_item += "'-1'";
 							break;
 						}
-						if (cell.getColumnIndex() == number_column - 1) {
+						if (cell.getColumnIndex() == number_column - 2) {
 							// bỏ dấu phẩy cuối
 						} else
 							student_item += ",";
@@ -279,7 +285,7 @@ public class LoadFromLocalToStaging {
 		sql_students = sql_students.substring(0, sql_students.lastIndexOf(","));
 		sql_students += ";";
 
-		// System.out.println(sql_students);
+//		 System.out.println(sql_students);
 		// 9.2.6: Đóng file
 		workBook.close();
 		System.out.println("List ST: " + sql_students);
