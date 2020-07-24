@@ -42,7 +42,7 @@ public class LoadFromLocalToStaging {
 		String sql_update;
 		String sql_insert;
 		PreparedStatement pre_staging = null;
-		int count = 0;
+		int count = 0; 
 
 		try {
 			// 1.connect database control
