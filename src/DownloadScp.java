@@ -22,11 +22,11 @@ public class DownloadScp {
 			System.exit(1); 
 		}
 	}
- 
+  
+	
 	public static void downloadFile(int id_config) throws Exception {
 		Connection conn = new GetConnection().getConnection("control");
-		
-		try {
+		try { 
 			Statement sta = conn.createStatement();
 			String sql = " select * from my_configs where id= " + id_config ; 
 			ResultSet rs = sta.executeQuery(sql);
@@ -34,8 +34,7 @@ public class DownloadScp {
 				String hostname = rs.getString("host_name");
 				int port = rs.getInt("port");
 				String username = rs.getString("user_name");
-				String pwd = rs.getString("password");
-				String ext = rs.getString("extention");
+				String pwd = rs.getString("password"); 
 				String remotePath = rs.getString("remote_path");
 				String localPath = rs.getString("local_path"); 
 				
@@ -60,8 +59,7 @@ public class DownloadScp {
 					System.out.println(scp.lastErrorText());
 					return;
 				}
-				//scp.put_SyncMustMatch("sinhvien*.*");//down tat ca cac file bat dau bang sinhvien sao ko chay dong` nay? phan down nay dang test
-				scp.put_SyncMustMatch("*.*" + ext);// download tat ca cac file co duoi giong ext
+				scp.put_SyncMustMatch("sinhvien*.*");
 				success = scp.SyncTreeDownload(remotePath, localPath, 2, false);
 				if (success != true) {
 					System.out.println(scp.lastErrorText()); 
@@ -87,6 +85,8 @@ public class DownloadScp {
 	public static void logDownloadFile(File folder) throws Exception {
 		// chua kiem tra local_path da ton tai hay chua
 		Connection conn = new GetConnection().getConnection("control");
+		int sum = 0;
+		
 		String sql =  "insert into my_logs" + "(id_config,status_download,date_time_download,local_path,name_file_local,extension,status_stagging,date_time_staging,load_row_stagging,record_end,status_warehouse,date_time_warehouse,load_row_warehouse)" + "values"
 				+ "(?,?,?,?,?,?,?,?,?,?,?,?,?)" ; 
 		PreparedStatement sta = conn.prepareStatement(sql);
@@ -102,9 +102,10 @@ public class DownloadScp {
 				sta.setString(9, "-1");
 				sta.setString(10,"-1");
 				sta.setString(11, "Error Warehouse");
-				sta.setDate(12, new Date(System.currentTimeMillis()));
+				sta.setDate(12, new Date(System.currentTimeMillis())); 
 				sta.setString(13, "-1");
 				sta.execute(); 
+		
 		}
 		sta.close(); 
 		conn.close();
@@ -112,6 +113,7 @@ public class DownloadScp {
 
 	
 	public static void main(String argv[]) throws Exception {
-		DownloadScp.downloadFile(1);
+		DownloadScp.downloadFile(1);  
+		
 	}
 }
