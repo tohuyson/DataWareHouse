@@ -51,7 +51,7 @@ public class LoadFromLocalToStaging {
 			Connection conn_Staging = new GetConnection().getConnection("staging");
 			// 3. Kiểm tra các file OK Download
 			pre_control = (PreparedStatement) connect_control.prepareStatement(
-					"SELECT my_logs.id ,my_logs.name_file_local, my_configs.name_table_staging ,my_configs.colum_table_staging, my_logs.local_path,my_logs.extension,my_logs.status_stagging,my_logs.status_warehouse"
+					"SELECT my_logs.id ,my_logs.name_file_local, my_configs.name_table_staging, my_configs.field, my_configs.field_insert,my_configs.colum_table_staging, my_logs.local_path,my_logs.extension,my_logs.status_stagging,my_logs.status_warehouse"
 							+ " from my_logs JOIN my_configs on my_logs.id_config= my_configs.id" + " where "
 							+ condition);
 			// 4. Nhận ResultSet thỏa điều kiện
@@ -66,6 +66,9 @@ public class LoadFromLocalToStaging {
 				int number_column = re.getInt("colum_table_staging");
 				String status_staging = re.getString("status_stagging");
 				String status_warehouse = re.getString("status_warehouse");
+				String fields = re.getString("field");
+				String field_insert = re.getString("field_insert");
+				System.out.println(" Field Insert: " + field_insert);
 
 				// 6. Kiểm tra file có tồn tại trong folder hay không
 				String path = dir + filename + extend;
@@ -96,9 +99,13 @@ public class LoadFromLocalToStaging {
 				} else {
 					try {
 
+						// chạy thêm for field
+						System.out.println(" Fields: " + fields);
+						System.out.println(" Field Insert: " + field_insert);
+
 						// 9. Kiểm tra loại file
 						// 9.1. Nếu là file đuôi osheet thì bỏ qa không đọc
-						if (extend.equals(".osheet") ) {
+						if (extend.equals(".osheet")) {
 							System.out.println("bỏ qua");
 							continue;
 						}
@@ -123,7 +130,7 @@ public class LoadFromLocalToStaging {
 						if (!listStudent.isEmpty()) {
 							// 11. insert tất cả các student vào bảng staging
 
-							sql_insert = "INSERT INTO " + name_table_staging + " VALUES " + listStudent;
+							sql_insert = "INSERT INTO " + name_table_staging + field_insert + " VALUES " + listStudent;
 							pre_staging = (PreparedStatement) conn_Staging.prepareStatement(sql_insert);
 							// 12. Đếm số dòng load thành công, thông báo ra màn hình
 							count += pre_staging.executeUpdate();
@@ -156,9 +163,7 @@ public class LoadFromLocalToStaging {
 			pre_control.close();
 			connect_control.close();
 
-		} catch (
-
-		SQLException e) {
+		} catch (SQLException e) {
 			throw new RemoteException(e.getMessage(), e);
 		}
 	}
@@ -178,7 +183,7 @@ public class LoadFromLocalToStaging {
 					// 9.3.4: Cắt từng thuộc tính và đếm tổng thuộc tính trong từng dòng
 					StringTokenizer tokenizer = new StringTokenizer(lineText, ",|");
 					System.out.println(" Số value_column read: " + tokenizer.countTokens());
-					if (tokenizer.countTokens() == number_column) {
+					if (tokenizer.countTokens() == number_column - 1) {
 						listStudents += "('" + tokenizer.nextToken() + "'";
 						while (tokenizer.hasMoreTokens()) {
 							// 9.3.5: lấy giá trị tại từng cột của hàng được chỉ định theo định dạng sql để
@@ -212,6 +217,7 @@ public class LoadFromLocalToStaging {
 	}
 
 	private String loadingExcel(String fileName, int number_column) throws InvalidFormatException, IOException {
+		System.out.println(" Loading...................");
 		FileInputStream fileInStream = new FileInputStream(fileName);
 		int sheetIdx = 0;
 		// 9.2.1: Mở xlsx và lấy trang tính yêu cầu từ bảng tính
@@ -220,9 +226,10 @@ public class LoadFromLocalToStaging {
 
 		// 9.2.2: Lặp qua tất cả các hàng trong trang tính đã chọn
 		Iterator<Row> rowIterator = selSheet.iterator();
+		
 		List<String> listStudents = new ArrayList<String>();
 		while (rowIterator.hasNext()) {
-
+			int temp = 0;
 			Row row = rowIterator.next();
 
 			// 9.2.3: Lặp qua tất cả các cột trong hàng và xây dựng "," tách chuỗi
@@ -231,30 +238,38 @@ public class LoadFromLocalToStaging {
 			// System.out.println(" count " +selSheet.getRow(0).getLastCellNum());
 			if (selSheet.getRow(0).getLastCellNum() == number_column) {
 				String student_item = "(";
+				// System.out.println("row " + row);
+				// while (cellIterator.hasNext()) {
+				while (temp < number_column) {
+					temp++;
+					if (cellIterator.hasNext()) {
 
-				while (cellIterator.hasNext()) {
-					Cell cell = cellIterator.next();
+						Cell cell = cellIterator.next();
+						switch (cell.getCellType()) {
 
-					switch (cell.getCellType()) {
-					case STRING:
-						String value = "";
-						value = cell.getStringCellValue().replaceAll("'", "");
-						// System.out.println(value);
-						student_item += "N'" + value + "'";
-						break;
-					case NUMERIC:
-						student_item += "'" + cell.getNumericCellValue() + "'";
-						break;
-					case BOOLEAN:
-						student_item += "N'" + cell.getBooleanCellValue() + "'";
-						break;
-					default:
-						student_item += "'-1'";
-					}
-					if (cell.getColumnIndex() == number_column - 1) {
-						// bỏ dấu phẩy cuối
+						case STRING:
+							String value = "";
+							value = cell.getStringCellValue().replaceAll("'", "");
+							// System.out.println(value);
+							student_item += "N'" + value + "'";
+							break;
+						case NUMERIC:
+							student_item += "'" + cell.getNumericCellValue() + "'";
+							break;
+						case BOOLEAN:
+							student_item += "N'" + cell.getBooleanCellValue() + "'";
+							break;
+
+						default:
+							student_item += "'-1'";
+							break;
+						}
+						if (cell.getColumnIndex() == number_column - 1) {
+							// bỏ dấu phẩy cuối
+						} else
+							student_item += ",";
 					} else
-						student_item += ",";
+						student_item += "'-1'";
 				}
 				student_item += ")\n";
 				listStudents.add(student_item);
@@ -269,10 +284,11 @@ public class LoadFromLocalToStaging {
 		}
 		sql_students = sql_students.substring(0, sql_students.lastIndexOf(","));
 		sql_students += ";";
+
 		// System.out.println(sql_students);
 		// 9.2.6: Đóng file
 		workBook.close();
-		System.out.println("List ST: " +sql_students);
+		// System.out.println("List ST: " + sql_students);
 		return sql_students;
 	}
 }
