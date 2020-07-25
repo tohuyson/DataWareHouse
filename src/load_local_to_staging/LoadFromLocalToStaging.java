@@ -137,7 +137,7 @@ public class LoadFromLocalToStaging {
 						} else {
 							System.out.println("\t\t\tDữ liệu rỗng!\n");
 							count = 0;
-//							continue;
+							// continue;
 						}
 
 						System.out.println("\t\tLoad staging successfully:\t" + "file : " + filename
@@ -186,8 +186,8 @@ public class LoadFromLocalToStaging {
 				while (lineText != null) {
 					// 9.3.4: Cắt từng thuộc tính và đếm tổng thuộc tính trong từng dòng
 					StringTokenizer tokenizer = new StringTokenizer(lineText, ",|");
-//					System.out.println(" Số value_column read: " + tokenizer.countTokens());
-					if (tokenizer.countTokens() == number_column ) {
+					// System.out.println(" Số value_column read: " + tokenizer.countTokens());
+					if (tokenizer.countTokens() == number_column) {
 						listStudents += "('" + tokenizer.nextToken() + "'";
 						while (tokenizer.hasMoreTokens()) {
 							// 9.3.5: lấy giá trị tại từng cột của hàng được chỉ định theo định dạng sql để
@@ -197,7 +197,7 @@ public class LoadFromLocalToStaging {
 						listStudents += "), ";
 					}
 					lineText = bufferedReader.readLine();
-//					System.out.println("Student: " + lineText);
+					// System.out.println("Student: " + lineText);
 				}
 				// 9.3.6: Kiểm tra dữ liệu sinh viên
 				if (listStudents.isEmpty()) {
@@ -267,7 +267,20 @@ public class LoadFromLocalToStaging {
 							student_item += "'" + cell.getNumericCellValue() + "'";
 							break;
 						case BOOLEAN:
-							student_item += "N'" + cell.getBooleanCellValue() + "'";
+							student_item += "'-1'";
+							// student_item += "N'" + cell.getBooleanCellValue() + "'";
+							break;
+						case _NONE:
+							student_item += "'-1'";
+							break;
+						case BLANK:
+							student_item += "'-1'";
+							break;
+						case ERROR:
+							student_item += "'-1'";
+							break;
+						case FORMULA:
+							student_item += "'-1'";
 							break;
 
 						default:
@@ -279,7 +292,8 @@ public class LoadFromLocalToStaging {
 						} else
 							student_item += ",";
 					} else
-						// student_item += "N'null'";
+
+						// student_item += "'-1'";
 						return "";
 				}
 				student_item += ")\n";
@@ -291,9 +305,13 @@ public class LoadFromLocalToStaging {
 		// 9.2.5: Add tất cả sinh viên theo định dạng câu lệnh insert sql
 		String sql_students = "";
 		for (int i = 0; i < listStudents.size(); i++) {
-			sql_students += listStudents.get(i) + ",";
+			if (listStudents.get(i).contains("('-1','-1','-1','-1')")) {
+			} else {
+				sql_students += listStudents.get(i) + ",";
+			}
 		}
 		sql_students = sql_students.substring(0, sql_students.lastIndexOf(","));
+
 		sql_students += ";";
 
 		// System.out.println(sql_students);
