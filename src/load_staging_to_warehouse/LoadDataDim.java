@@ -3,7 +3,6 @@ package load_staging_to_warehouse;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.util.List;
 import java.util.StringTokenizer;
 
 import com.mysql.jdbc.DatabaseMetaData;

@@ -22,7 +22,7 @@ import org.joda.time.Period;
 
 public class Date_Dim {
 	public static final String OUT_FILE = "D:\\Data\\date\\date_dim_without_quarte_st.csv";
-	public static final int NUMBER_OF_RECORD = 5000;
+	public static final int NUMBER_OF_RECORD = 20000;
 	public static final String TIME_ZONE = "PST8PDT";
 
 	public static void main(String[] args) {
@@ -43,7 +43,7 @@ public class Date_Dim {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		DateTime startDateTime = new DateTime(1994, 12, 31, 0, 0, 0);
+		DateTime startDateTime = new DateTime(1980, 12, 31, 0, 0, 0);
 		DateTime startDateTimeforMonth = startDateTime.plus(Period.days(1));
 		while (count <= NUMBER_OF_RECORD) {
 			startDateTime = startDateTime.plus(Period.days(1));
@@ -58,52 +58,42 @@ public class Date_Dim {
 			String full_date = dt.format(calendar.getTime()); // 2
 			// Day Since 2005
 			day_since_2005 += 1; // 3
-			int month_since_2005_temp = Months.monthsBetween(
-					startDateTimeforMonth.toLocalDate(),
-					startDateTime.toLocalDate()).getMonths();
+			int month_since_2005_temp = Months
+					.monthsBetween(startDateTimeforMonth.toLocalDate(), startDateTime.toLocalDate()).getMonths();
 			// Month Since 2005
 			month_since_2005 = month_since_2005_temp + 1;
 			// Day of Week
-			String day_of_week = calendar.getDisplayName(Calendar.DAY_OF_WEEK,
-					Calendar.LONG, Locale.US); // 5
+			String day_of_week = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US); // 5
 			// Calendar Month
-			String calendar_month = calendar.getDisplayName(Calendar.MONTH,
-					Calendar.LONG, Locale.US); // 6
+			String calendar_month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US); // 6
 			dt = new SimpleDateFormat("yyyy");
 			// Calendar Year
 			String calendar_year = dt.format(calendar.getTime()); // 7
-			String calendar_month_short = calendar.getDisplayName(
-					Calendar.MONTH, Calendar.SHORT, Locale.US);
+			String calendar_month_short = calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US);
 			// Calendar Year Month
-			String calendar_year_month = calendar_year + "-"
-					+ calendar_month_short; // 8
+			String calendar_year_month = calendar_year + "-" + calendar_month_short; // 8
 			// Date of Month
 			int day_of_month = calendar.get(Calendar.DAY_OF_MONTH); // 9
 			// Day of Year
 			int day_of_year = calendar.get(Calendar.DAY_OF_YEAR); // 10
 			Calendar calendar_temp = calendar;
 			// Week of Year Sunday
-			int week_of_year_sunday = lastDayOfLastWeek(calendar_temp).get(
-					Calendar.WEEK_OF_YEAR); // 11
+			int week_of_year_sunday = lastDayOfLastWeek(calendar_temp).get(Calendar.WEEK_OF_YEAR); // 11
 			int year_sunday = lastDayOfLastWeek(calendar).get(Calendar.YEAR);
 			// Year Week Sunday
 			String year_week_sunday = ""; // 12
 			if (week_of_year_sunday < 10) {
-				year_week_sunday = year_sunday + "-" + "W0"
-						+ week_of_year_sunday;
+				year_week_sunday = year_sunday + "-" + "W0" + week_of_year_sunday;
 			} else {
-				year_week_sunday = year_sunday + "-" + "W"
-						+ week_of_year_sunday;
+				year_week_sunday = year_sunday + "-" + "W" + week_of_year_sunday;
 			}
 			calendar_temp = Calendar.getInstance(Locale.US);
 			calendar_temp.setTime(calendar.getTime());
-			calendar_temp.set(Calendar.DAY_OF_WEEK,
-					calendar_temp.getFirstDayOfWeek());
+			calendar_temp.set(Calendar.DAY_OF_WEEK, calendar_temp.getFirstDayOfWeek());
 			dt = new SimpleDateFormat("yyyy-MM-dd");
 			// Week Sunday Start
 			String week_sunday_start = dt.format(calendar_temp.getTime()); // 13
-			DateTime startOfWeek = startDateTime.weekOfWeekyear()
-					.roundFloorCopy();
+			DateTime startOfWeek = startDateTime.weekOfWeekyear().roundFloorCopy();
 			// Week of Year Monday
 			int week_of_year_monday = startOfWeek.getWeekOfWeekyear(); // 14
 			dt = new SimpleDateFormat("yyyy");
@@ -111,11 +101,9 @@ public class Date_Dim {
 			// Year Week Monday
 			String year_week_monday = "";
 			if (week_of_year_monday < 10) {
-				year_week_monday = year_week_monday_temp + "-W0"
-						+ week_of_year_monday;
+				year_week_monday = year_week_monday_temp + "-W0" + week_of_year_monday;
 			} else {
-				year_week_monday = year_week_monday_temp + "-W"
-						+ week_of_year_monday;
+				year_week_monday = year_week_monday_temp + "-W" + week_of_year_monday;
 			}
 			dt = new SimpleDateFormat("yyyy-MM-dd");
 			// Week Monday Start
@@ -130,10 +118,10 @@ public class Date_Dim {
 					quarter_temp = 1;
 				}
 			}
-			
+
 			int quarter_since_2005 = 0;
 			quarter_since_2005 += quarter_since_2005_temp;
-			
+
 			// Quarter of Year
 			String quarter_year = startDateTime.getYear() + "";
 			String quarter_of_year_temp = getQuarter(startDateTime.getMonthOfYear());
@@ -142,14 +130,11 @@ public class Date_Dim {
 			String holiday = "Non-Holiday"; // 17
 			// Day Type
 			String day_type = isWeekend(day_of_week); // 18
-			String output = date_sk + "," + full_date + "," + day_since_2005
-					+ "," + month_since_2005 + "," + day_of_week + ","
-					+ calendar_month + "," + calendar_year + ","
-					+ calendar_year_month + "," + day_of_month + ","
-					+ day_of_year + "," + week_of_year_sunday + ","
-					+ year_week_sunday + "," + week_sunday_start + ","
-					+ week_of_year_monday + "," + year_week_monday + ","
-					+ week_monday_start + "," + holiday + "," + day_type;
+			String output = date_sk + "," + full_date + "," + day_since_2005 + "," + month_since_2005 + ","
+					+ day_of_week + "," + calendar_month + "," + calendar_year + "," + calendar_year_month + ","
+					+ day_of_month + "," + day_of_year + "," + week_of_year_sunday + "," + year_week_sunday + ","
+					+ week_sunday_start + "," + week_of_year_monday + "," + year_week_monday + "," + week_monday_start
+					+ "," + holiday + "," + day_type;
 			// System.out.println(output);
 			count++;
 			// Printout Data to File
