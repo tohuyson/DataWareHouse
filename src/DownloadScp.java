@@ -37,6 +37,7 @@ public class DownloadScp {
 				String pwd = rs.getString("password"); 
 				String remotePath = rs.getString("remote_path");
 				String localPath = rs.getString("local_path"); 
+				String name_file_type= rs.getString("name_file_type");
 				
 				CkSsh ssh = new CkSsh();
 				CkGlobal ck = new CkGlobal();
@@ -59,7 +60,7 @@ public class DownloadScp {
 					System.out.println(scp.lastErrorText());
 					return;
 				}
-				scp.put_SyncMustMatch("sinhvien*.*");
+				scp.put_SyncMustMatch(name_file_type);
 				success = scp.SyncTreeDownload(remotePath, localPath, 2, false);
 				if (success != true) {
 					System.out.println(scp.lastErrorText()); 
@@ -113,7 +114,7 @@ public class DownloadScp {
 
 	
 	public static void main(String argv[]) throws Exception {
-		DownloadScp.downloadFile(1);  
+		DownloadScp.downloadFile(4);  
 		
 	}
 }

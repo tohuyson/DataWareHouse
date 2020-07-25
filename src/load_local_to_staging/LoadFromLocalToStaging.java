@@ -42,7 +42,7 @@ public class LoadFromLocalToStaging {
 		String sql_update;
 		String sql_insert;
 		PreparedStatement pre_staging = null;
-		int count = 0; 
+		int count = 0;
 
 		try {
 			// 1.connect database control
@@ -203,7 +203,7 @@ public class LoadFromLocalToStaging {
 					System.out.println("vào đây ");
 					listStudents = listStudents.substring(0, listStudents.lastIndexOf(","));
 					listStudents += ";";
-					// System.out.println("List ST: " + listStudents.toString());
+					System.out.println("List ST: " + listStudents.toString());
 				}
 				// 9.3.7: Đóng kết nối
 				bufferedReader.close();
@@ -217,6 +217,7 @@ public class LoadFromLocalToStaging {
 	}
 
 	private String loadingExcel(String fileName, int number_column) throws InvalidFormatException, IOException {
+		System.out.println(" Loading...................");
 		FileInputStream fileInStream = new FileInputStream(fileName);
 		int sheetIdx = 0;
 		// 9.2.1: Mở xlsx và lấy trang tính yêu cầu từ bảng tính
@@ -225,8 +226,8 @@ public class LoadFromLocalToStaging {
 
 		// 9.2.2: Lặp qua tất cả các hàng trong trang tính đã chọn
 		Iterator<Row> rowIterator = selSheet.iterator();
+		
 		List<String> listStudents = new ArrayList<String>();
-
 		while (rowIterator.hasNext()) {
 			int temp = 0;
 			Row row = rowIterator.next();
@@ -234,7 +235,7 @@ public class LoadFromLocalToStaging {
 			// 9.2.3: Lặp qua tất cả các cột trong hàng và xây dựng "," tách chuỗi
 
 			Iterator<Cell> cellIterator = row.cellIterator();
-			// System.out.println(" count " +selSheet.getRow(1).getCell(0));
+			// System.out.println(" count " +selSheet.getRow(0).getLastCellNum());
 			if (selSheet.getRow(0).getLastCellNum() == number_column) {
 				String student_item = "(";
 				// System.out.println("row " + row);
