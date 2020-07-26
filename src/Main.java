@@ -8,4 +8,9 @@ public class Main extends Thread{
 	public Main() {
 		
 	}
+	@Override
+	public void run() {
+		super.run();
+		
+	}
 }

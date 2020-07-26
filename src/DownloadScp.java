@@ -39,6 +39,7 @@ public class DownloadScp {
 				String localPath = rs.getString("local_path"); 
 				String name_file_type= rs.getString("name_file_type");
 				
+				
 				CkSsh ssh = new CkSsh();
 				CkGlobal ck = new CkGlobal();
 				ck.UnlockBundle("Waiting...............");
@@ -67,7 +68,7 @@ public class DownloadScp {
 					return;
 			} else {
 						try {
-								logDownloadFile(new File(localPath)); 
+								logDownloadFile(new File(localPath), id_config); 
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -83,16 +84,16 @@ public class DownloadScp {
 		}
 	}
 	
-	public static void logDownloadFile(File folder) throws Exception {
+	public static void logDownloadFile(File folder,int id) throws Exception {
 		// chua kiem tra local_path da ton tai hay chua
 		Connection conn = new GetConnection().getConnection("control");
 		int sum = 0;
 		
-		String sql =  "insert into my_logs" + "(id_config,status_download,date_time_download,local_path,name_file_local,extension,status_stagging,date_time_staging,load_row_stagging,record_end,status_warehouse,date_time_warehouse,load_row_warehouse)" + "values"
-				+ "(?,?,?,?,?,?,?,?,?,?,?,?,?)" ; 
+		String sql =  "insert into my_logs" + "(id_config,status_download,date_time_download,local_path,name_file_local,extension,status_stagging,date_time_staging,load_row_stagging,status_warehouse,date_time_warehouse,load_row_warehouse)" + "values"
+				+ "(?,?,?,?,?,?,?,?,?,?,?,?)" ; 
 		PreparedStatement sta = conn.prepareStatement(sql);
 		for (File f : folder.listFiles()) {
-				sta.setString(1, "1"); 
+				sta.setInt(1, id);
 				sta.setString(2, "OK Download");
 				sta.setDate(3, new Date(System.currentTimeMillis()));
 				sta.setString(4, f.getParent() + "\\");
@@ -101,10 +102,10 @@ public class DownloadScp {
 				sta.setString(7, "Error Stagging");
 				sta.setDate(8, new Date(System.currentTimeMillis()));
 				sta.setString(9, "-1");
-				sta.setString(10,"-1");
-				sta.setString(11, "Error Warehouse");
-				sta.setDate(12, new Date(System.currentTimeMillis())); 
-				sta.setString(13, "-1");
+//				sta.setString(10,"-1");
+				sta.setString(10, "Error Warehouse");
+				sta.setDate(11, new Date(System.currentTimeMillis())); 
+				sta.setString(12, "-1");
 				sta.execute(); 
 		
 		}
@@ -114,7 +115,9 @@ public class DownloadScp {
 
 	
 	public static void main(String argv[]) throws Exception {
-		DownloadScp.downloadFile(4);  
+		DownloadScp.downloadFile(1);  
+		DownloadScp.downloadFile(3);
+		DownloadScp.downloadFile(4);
 		
 	}
 }
