@@ -78,7 +78,8 @@ public class GetConnection {
 //		if (conn != null) {
 //			System.out.println("Successfully");
 //		}
-		String s = "191924|hsjabro jsdfkj asdkj@aks";
-		System.out.println(s.replace("|", ",").replace(" ", ","));
+//		String s = "191924|hsjabro jsdfkj asdkj@aks";
+//		System.out.println(s.replace("|", ",").replace(" ", ","));
+		new GetConnection().getConnection("staging");
 	}
 }
