@@ -31,7 +31,7 @@ public class LoadFromLocalToStaging {
 	private BufferedReader bufferedReader;
 
 	public static void main(String[] args) throws Exception {
-		new LoadFromLocalToStaging().staging("my_logs.status_download = 'OK Download'");
+		new LoadFromLocalToStaging().staging("my_logs.status_download = 'OK Download' AND my_logs.id_config=1");
 		// new LoadFromLocalToStaging().readStudentsFromFile(new
 		// File("D:\\Data\\17130044_sang_nhom8.txt"),11);
 

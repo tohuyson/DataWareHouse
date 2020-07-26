@@ -114,7 +114,7 @@ public class DownloadScp {
 
 	
 	public static void main(String argv[]) throws Exception {
-		DownloadScp.downloadFile(4);  
+		DownloadScp.downloadFile(3);  
 		
 	}
 }
