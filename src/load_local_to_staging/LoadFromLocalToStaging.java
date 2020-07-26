@@ -26,7 +26,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.mysql.jdbc.PreparedStatement;
 
 import connect.GetConnection;
-import javafx.scene.input.DataFormat;
 
 public class LoadFromLocalToStaging {
 	private BufferedReader bufferedReader;

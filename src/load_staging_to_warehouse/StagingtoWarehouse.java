@@ -3,17 +3,15 @@ package load_staging_to_warehouse;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 import com.mysql.jdbc.DatabaseMetaData;
 import com.mysql.jdbc.PreparedStatement;
 
 import connect.GetConnection;
+
+
 
 public class StagingtoWarehouse {
 	public static void LoadStagingtoWarehouse() throws Exception {
@@ -186,12 +184,12 @@ public class StagingtoWarehouse {
 					pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlLoadWarehouse);
 //					pSDataWH.setInt(1, (Integer) null);
 					for (int i = 1; i < arrField.length; i++) {
-						System.out.println(i + "iiiii");
+						System.out.println(i+"iiiii");
 						String data = rsStaging.getString(i);
 						System.out.println(data);
 						try {
 							int s = Integer.parseInt(data);
-							System.out.println(s + "hfhfh");
+							System.out.println(s+"hfhfh");
 							pSDataWH.setInt(i, s);
 						} catch (NumberFormatException e) {
 							LocalDate date = transform(1, data);
@@ -243,6 +241,7 @@ public class StagingtoWarehouse {
 		}
 	}
 
+
 	public static LocalDate transform(int mode, String data) {
 		switch (mode) {
 		case 1:
@@ -289,7 +288,7 @@ public class StagingtoWarehouse {
 //			loadDataStagingtoWarehouse(
 //					"INSERT INTO students (ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?)");
 //			loadDataStagingtoWarehouseTranf(
-//					"INSERT INTO students (stt,ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+//					"INSERT INTO students (stt,ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
 //					1);
 			loadDataStagingtoWarehouseTranf("INSERT INTO class (stt,ma_lop,ma_monhoc,nam_hoc) VALUES(?,?,?,?)", 3);
 
