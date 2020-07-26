@@ -19,14 +19,12 @@ import java.util.StringTokenizer;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFDataFormat;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.mysql.jdbc.PreparedStatement;
 
 import connect.GetConnection;
-import javafx.scene.input.DataFormat;
 
 public class LoadFromLocalToStaging {
 	private BufferedReader bufferedReader;
@@ -236,6 +234,7 @@ public class LoadFromLocalToStaging {
 
 		List<String> listStudents = new ArrayList<String>();
 		while (rowIterator.hasNext()) {
+			System.out.println("gì ");
 			int temp = 0;
 			Row row = rowIterator.next();
 			// System.out.println("nextRow.getRowNum() " +row.getRowNum());
@@ -294,6 +293,7 @@ public class LoadFromLocalToStaging {
 					} else
 
 						// student_item += "'-1'";
+						
 						return "";
 				}
 				student_item += ")\n";
