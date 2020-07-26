@@ -56,7 +56,12 @@ UPDATE my_logs SET my_logs.load_row_stagging = 2, my_logs.status_stagging='OK St
 SELECT my_logs.id ,my_logs.name_file_local, my_configs.name_table_staging ,my_configs.colum_table_staging, my_logs.local_path,my_logs.extension from my_logs JOIN my_configs on my_logs.id= my_configs.id_log where my_logs.status_download LIKE 'OK Download'
 
 // create and insert table student
-CREATE TABLE students (stt int NOT NULL AUTO_INCREMENT, ma_sv int,ho_lot VARCHAR(255),ten VARCHAR(255),ngay_sinh int,ma_lop VARCHAR(255),ten_lop VARCHAR(255),dien_thoai VARCHAR(255),email VARCHAR(255), que_quan VARCHAR(255),ghi_chu VARCHAR(255),PRIMARY KEY (stt))
+CREATE TABLE students (id int NOT NULL AUTO_INCREMENT,stt int ma_sv int,ho_lot VARCHAR(255),ten VARCHAR(255),ngay_sinh int,ma_lop VARCHAR(255),ten_lop VARCHAR(255),dien_thoai VARCHAR(255),email VARCHAR(255), que_quan VARCHAR(255),ghi_chu VARCHAR(255),PRIMARY KEY(id)
 
-INSERT INTO students (ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?)
+INSERT INTO students (stt,ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?,?)
+
+// create and insert class
+CREATE TABLE class (id int NOT NULL AUTO_INCREMENT,stt int, ma_lop VARCHAR(255),ma_monhoc int,nam_hoc int,PRIMARY KEY(id)
+
+INSERT INTO class (stt,ma_lop,ma_monhoc,nam_hoc) VALUES(?,?,?,?)
 

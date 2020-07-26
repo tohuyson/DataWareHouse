@@ -10,6 +10,7 @@ import com.mysql.jdbc.DatabaseMetaData;
 import com.mysql.jdbc.PreparedStatement;
 
 import connect.GetConnection;
+import load_local_to_staging.LoadFromLocalToStaging;
 
 public class StagingtoWarehouse {
 	public static void LoadStagingtoWarehouse(int idConfig) throws Exception {
@@ -18,55 +19,54 @@ public class StagingtoWarehouse {
 		Connection connControll = new GetConnection().getConnection("control");
 
 //		2. Kết nối table my_configs
-		String sqlcontroll = "select * from my_configs where id=" + idConfig;
+//		String sqlcontroll = "select * from my_configs where id=" + idConfig;
+		String sqlcontroll = "select * from my_logs JOIN my_configs ON my_logs.id_config= my_configs.id where my_logs.id_config="
+				+ idConfig;
 		PreparedStatement psControll = (PreparedStatement) connControll.prepareStatement(sqlcontroll);
 
 //		3. trả về ResultSet 
 		ResultSet rscontroll = psControll.executeQuery();
 
+//		12. load những dòng bên staging qua warehouse
 		String nameTable = "";
 		String sql_create_table = "";
 		String sql_insert_table = "";
-
 //		4. duyệt từng dòng trong ResultSet
 		while (rscontroll.next()) {
 			sql_create_table = rscontroll.getString("sql_create_table");
 			nameTable = rscontroll.getString("name_table_warehouse");
 			sql_insert_table = rscontroll.getString("sql_insert_table");
+			int idlog = rscontroll.getInt("my_logs.id");
+
+//	 		7. kết nối data warehouse		
+			Connection connWareHouse = new GetConnection().getConnection("warehouse");
+			Connection connStaging = new GetConnection().getConnection("staging");
+
+//			9. check table có tồn tại hay không
+			PreparedStatement pSDataWH;
+			DatabaseMetaData checkCreateTable = (DatabaseMetaData) connWareHouse.getMetaData();
+			ResultSet table = checkCreateTable.getTables(null, null, nameTable, null);
+			if (table.next()) {
+			} else {
+//			10. Thực hiện câu query tạo table warehouse
+				System.out.println(sql_create_table);
+				pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sql_create_table);
+				pSDataWH.execute();
+
+			}
+			LoadFromLocalToStaging staging = new LoadFromLocalToStaging();
+			staging.staging("my_logs.status_download = 'OK Download' AND my_logs.id_config=" + idConfig
+					+ " and my_logs.id=" + idlog);
+			loadDataStagingtoWarehouseTranf(sql_insert_table, idConfig, idlog);
+
 		}
-
-// 		7. kết nối data warehouse		
-		Connection connWareHouse = new GetConnection().getConnection("warehouse");
-
-//		9. check table có tồn tại hay không
-		PreparedStatement pSDataWH;
-		DatabaseMetaData checkCreateTable = (DatabaseMetaData) connWareHouse.getMetaData();
-		ResultSet table = checkCreateTable.getTables(null, null, nameTable, null);
-		if (table.next()) {
-			System.out.println("Table đã tồn tại");
-		} else {
-//		10. Thực hiện câu query tạo table warehouse
-			System.out.println(sql_create_table);
-			pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sql_create_table);
-			pSDataWH.execute();
-
-		}
-
-//		11. Lấy query insert into dữ liệu vào table dataware
-//		pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sql_insert_table);
-
-//		12. load những dòng bên staging qua warehouse
-		System.out.println(sql_insert_table);
-//		loadDataStagingtoWarehouse(sql_insert_table);
-		loadDataStagingtoWarehouseTranf(sql_insert_table, idConfig);
-
-////	
 	}
 
-	public static void loadDataStagingtoWarehouseTranf(String sqlLoadWarehouse, int config) throws Exception {
+	public static void loadDataStagingtoWarehouseTranf(String sqlLoadWarehouse, int config, int idLog)
+			throws Exception {
 		Connection connControl = new GetConnection().getConnection("control");
 		String sql = "SELECT * FROM my_logs JOIN my_configs ON my_logs.id_config= my_configs.id WHERE my_logs.id_config="
-				+ config;
+				+ config + " and my_logs.id=" + idLog;
 		PreparedStatement prS = (PreparedStatement) connControl.prepareStatement(sql);
 		ResultSet rS = prS.executeQuery();
 
@@ -78,7 +78,6 @@ public class StagingtoWarehouse {
 
 		Connection connWareHouse = new GetConnection().getConnection("warehouse");
 		PreparedStatement pSDataWH;
-		int check_Warehouse = -1;
 
 		while (rS.next()) {
 			nameTable = rS.getString("name_table_staging");
@@ -86,15 +85,9 @@ public class StagingtoWarehouse {
 			field = rS.getString("field");
 			int id = rS.getInt("id");
 
-			System.out.println(field);
-			System.out.println(nameTable);
-
 			String[] arrField = field.split("\\,");
-			System.out.println(arrField.length);
-			System.out.println(rS.getString("status_stagging"));
 			if (rS.getString("status_stagging").equals("OK Staging")) {
 
-				System.out.println("sss");
 				Connection connStaging = new GetConnection().getConnection("staging");
 
 				String sqlstaging = "select * from " + nameTable;
@@ -104,22 +97,16 @@ public class StagingtoWarehouse {
 
 				while (rsStaging.next()) {
 					pSDataWH = (PreparedStatement) connWareHouse.prepareStatement(sqlLoadWarehouse);
-//					pSDataWH.setInt(1,);
 					for (int i = 1; i <= arrField.length; i++) {
-						System.out.println(i + "iiiii");
 						if (i >= 2) {
 							String data = rsStaging.getString(i);
-							System.out.println(data);
 							try {
 								int s = Integer.parseInt(data);
-								System.out.println(s + "hfhfh");
-								pSDataWH.setInt(i-1, s);
+								pSDataWH.setInt(i - 1, s);
 							} catch (NumberFormatException e) {
 								LocalDate date = transform(1, data);
 								if (date != null) {
-									System.out.println(date.toString() + "ssdf");
 									String sqldate = "select * from datadim where full_date='" + date + "'";
-									System.out.println(sqldate);
 									PreparedStatement datadim = (PreparedStatement) connWareHouse
 											.prepareStatement(sqldate);
 									ResultSet rsdim = datadim.executeQuery();
@@ -127,14 +114,12 @@ public class StagingtoWarehouse {
 									while (rsdim.next()) {
 										id_SK = rsdim.getInt("id_SK");
 									}
-									pSDataWH.setInt(i-1, id_SK);
+									pSDataWH.setInt(i - 1, id_SK);
 								} else {
 									try {
 										String s = String.valueOf(data);
-										System.out.println("plpppllp");
-										pSDataWH.setString(i-1, s);
+										pSDataWH.setString(i - 1, s);
 									} catch (NullPointerException e2) {
-										System.out.println("sds");
 									}
 								}
 							}
@@ -144,23 +129,28 @@ public class StagingtoWarehouse {
 					if (pSDataWH.executeUpdate() == 1)
 						count++;
 				}
-				System.out.println(count);
-				System.out.println(check_Warehouse + "dsd");
 				if (count > 0) {
 					String updateLog = "update my_logs set status_warehouse="
 							+ " 'OK Warehouse', date_time_warehouse= now(), load_row_warehouse=" + count + " where id="
 							+ id;
-					System.out.println(updateLog);
 					prS = (PreparedStatement) connControl.prepareStatement(updateLog);
 					prS.executeUpdate();
+
+					System.out.println("Load warehouse thành công, rowload=" + count);
+
+					String name_table_staging = rS.getString("name_table_staging");
+					String sqlTruncate = "TRUNCATE TABLE " + name_table_staging;
+					PreparedStatement psStaging = (PreparedStatement) connStaging.prepareStatement(sqlTruncate);
+					psStaging.execute();
 				} else {
 					String updateLog = "update my_logs set status_warehouse="
 							+ " 'ERROR', date_time_warehouse= now(), load_row_warehouse='-1' where id=" + id;
-					System.out.println(updateLog);
 					prS = (PreparedStatement) connControl.prepareStatement(updateLog);
 					prS.executeUpdate();
-					continue;
+					System.out.println("Load warehouse không thành công");
+//					continue;
 				}
+
 			}
 		}
 	}
@@ -212,21 +202,20 @@ public class StagingtoWarehouse {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		try {
-
-//			LoadStagingtoWarehouse();
-//			loadDataStagingtoWarehouse(
-//					"INSERT INTO students (ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?)");
-			loadDataStagingtoWarehouseTranf(
-					"INSERT INTO students (stt,ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-					1);
-//			loadDataStagingtoWarehouseTranf("INSERT INTO class (stt,ma_lop,ma_monhoc,nam_hoc) VALUES(?,?,?,?)",
-//					3);
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-//		System.out.println(transform(1,"20/02/1990"));
-	}
+//	public static void main(String[] args) throws Exception {
+//		try {
+//
+//			LoadStagingtoWarehouse(3);
+////			loadDataStagingtoWarehouse(
+////					"INSERT INTO students (ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?)");
+////			loadDataStagingtoWarehouseTranf(
+////					"INSERT INTO students (stt,ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+////					1);
+////			loadDataStagingtoWarehouseTranf("INSERT INTO class (stt,ma_lop,ma_monhoc,nam_hoc) VALUES(?,?,?,?)", 3, 1);
+//
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+////		System.out.println(transform(1,"20/02/1990"));
+//	}
 }

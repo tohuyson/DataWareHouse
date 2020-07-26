@@ -11,7 +11,7 @@ public class Main {
 		try {
 			System.out.println(args[0]);
 //					dowload.downloadFile(Integer.parseInt(args[0]));
-			loadStaging.staging("my_logs.status_download = 'OK Download' AND my_logs.id_config=" + args[0]);
+//			loadStaging.staging("my_logs.status_download = 'OK Download' AND my_logs.id_config=" + args[0]);
 			loadWH.LoadStagingtoWarehouse(Integer.parseInt(args[0]));
 		} catch (Exception e) {
 			e.printStackTrace();
