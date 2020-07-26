@@ -38,6 +38,7 @@ public class DownloadScp {
 				String remotePath = rs.getString("remote_path");
 				String localPath = rs.getString("local_path"); 
 				String name_file_type= rs.getString("name_file_type");
+				int id = rs.getInt(1);
 				
 				
 				CkSsh ssh = new CkSsh();
@@ -68,7 +69,7 @@ public class DownloadScp {
 					return;
 			} else {
 						try {
-								logDownloadFile(new File(localPath), id_config); 
+								logDownloadFile(new File(localPath), id); 
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -116,8 +117,8 @@ public class DownloadScp {
 	
 	public static void main(String argv[]) throws Exception {
 		DownloadScp.downloadFile(1);  
-		DownloadScp.downloadFile(3);
-		DownloadScp.downloadFile(4);
+//		DownloadScp.downloadFile(3);
+//		DownloadScp.downloadFile(4);
 		
 	}
 }
