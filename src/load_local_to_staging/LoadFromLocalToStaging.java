@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -19,7 +20,6 @@ import java.util.StringTokenizer;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFDataFormat;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -34,7 +34,6 @@ public class LoadFromLocalToStaging {
 		new LoadFromLocalToStaging().staging("my_logs.status_download = 'OK Download' AND my_logs.id_config=1");
 		// new LoadFromLocalToStaging().readStudentsFromFile(new
 		// File("D:\\Data\\17130044_sang_nhom8.txt"),11);
-
 	}
 
 	public void staging(String condition) throws Exception {
@@ -67,7 +66,7 @@ public class LoadFromLocalToStaging {
 				int number_column = re.getInt("colum_table_staging");
 				String status_staging = re.getString("status_stagging");
 				String status_warehouse = re.getString("status_warehouse");
-				String fields = re.getString("field");
+				// String fields = re.getString("field");
 				String field_insert = re.getString("field_insert");
 
 				// 6. Kiểm tra file có tồn tại trong folder hay không
@@ -167,7 +166,9 @@ public class LoadFromLocalToStaging {
 			connect_control.close();
 
 		} catch (SQLException e) {
-			throw new RemoteException(e.getMessage(), e);
+//			throw new RemoteException(e.getMessage(), e);
+			count=0;
+			staging("my_logs.status_download = 'ERROR Staging'");
 		}
 	}
 
@@ -214,6 +215,7 @@ public class LoadFromLocalToStaging {
 			}
 		} catch (FileNotFoundException e) {
 			throw new RemoteException(e.getMessage(), e);
+
 		}
 		return listStudents;
 	}
@@ -225,30 +227,26 @@ public class LoadFromLocalToStaging {
 		XSSFWorkbook workBook = new XSSFWorkbook(fileInStream);
 		XSSFSheet selSheet = workBook.getSheetAt(sheetIdx);
 
-		// System.out.println(selSheet.getRow(0).getPhysicalNumberOfCells()+ " cell file
-		// excel");
 		int rowTotal = selSheet.getLastRowNum();
 
-		// System.out.println("total row " + rowTotal);
+		System.out.println("total row " + rowTotal);
 		// 9.2.2: Lặp qua tất cả các hàng trong trang tính đã chọn
 		Iterator<Row> rowIterator = selSheet.iterator();
-
 		List<String> listStudents = new ArrayList<String>();
 		while (rowIterator.hasNext()) {
 			int temp = 0;
 			Row row = rowIterator.next();
-			// System.out.println("nextRow.getRowNum() " +row.getRowNum());
 
 			// 9.2.3: Lặp qua tất cả các cột trong hàng và xây dựng "," tách chuỗi
 
 			Iterator<Cell> cellIterator = row.cellIterator();
-			// System.out.println(" count " +selSheet.getRow(0).getLastCellNum());
+			// xử lý cái file sinhvien_sang_nhom7 chơi trội.............
+			if (selSheet.getRow(0) == null || selSheet.getRow(0).getLastCellNum() != number_column) {
+				System.out.println("Làm data kiểu gì không hiểu");
+				return "";
+			}
 			if (selSheet.getRow(0).getLastCellNum() == number_column) {
-				// if (selSheet.getRow(0).getFirstCellNum()) {
-				// }
 				String student_item = "(";
-				// System.out.println("row " + row);
-				// while (cellIterator.hasNext()) {
 				while (temp < number_column) {
 					temp++;
 					if (cellIterator.hasNext()) {
@@ -259,7 +257,6 @@ public class LoadFromLocalToStaging {
 
 							String value = "";
 							value = cell.getStringCellValue().replaceAll("'", "");
-							// System.out.println(value);
 							student_item += "N'" + value + "'";
 							break;
 						case NUMERIC:
@@ -267,7 +264,6 @@ public class LoadFromLocalToStaging {
 							break;
 						case BOOLEAN:
 							student_item += "'-1'";
-							// student_item += "N'" + cell.getBooleanCellValue() + "'";
 							break;
 						case _NONE:
 							student_item += "'-1'";
@@ -292,19 +288,25 @@ public class LoadFromLocalToStaging {
 							student_item += ",";
 					} else
 
-						// student_item += "'-1'";
-						return "";
+						student_item = "'-1'";
+					// return "";
 				}
 				student_item += ")\n";
 				listStudents.add(student_item);
 			}
+			// continue;
 		}
 		// 9.2.4: Bỏ phần header
 		listStudents.remove(0);
 		// 9.2.5: Add tất cả sinh viên theo định dạng câu lệnh insert sql
 		String sql_students = "";
-		for (int i = 0; i < listStudents.size(); i++) {
-			if (listStudents.get(i).contains("('-1','-1','-1','-1')")) {
+		a: for (int i = 0; i < listStudents.size(); i++) {
+			String[] arr = listStudents.get(i).split(",'");
+			// System.out.println(" vvo" +arr[0]);
+			if (arr[0].contains("'-1'")) {
+				listStudents.remove(listStudents.get(i));
+				// continue a;
+				break;
 			} else {
 				sql_students += listStudents.get(i) + ",";
 			}
@@ -319,4 +321,5 @@ public class LoadFromLocalToStaging {
 		System.out.println("List ST: " + sql_students);
 		return sql_students;
 	}
+
 }

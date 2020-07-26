@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import load_local_to_staging.LoadFromLocalToStaging;
 import load_staging_to_warehouse.StagingtoWarehouse;
 
@@ -17,3 +18,21 @@ public class Main {
 		}
 	}
 }
+=======
+import load_local_to_staging.LoadFromLocalToStaging;
+import load_staging_to_warehouse.StagingtoWarehouse;
+
+public class Main extends Thread{
+	DownloadScp dowload;
+	LoadFromLocalToStaging loadStaging;
+	StagingtoWarehouse loadWH;
+	public Main() {
+		
+	}
+	@Override
+	public void run() {
+		super.run();
+		
+	}
+}
+>>>>>>> 23b0ddb3d9844107510aea97a4e801c5f3f74e6d
