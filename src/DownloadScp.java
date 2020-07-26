@@ -116,13 +116,9 @@ public class DownloadScp {
 
 	
 	public static void main(String argv[]) throws Exception {
-<<<<<<< HEAD
-		DownloadScp.downloadFile(3);  
-=======
 		DownloadScp.downloadFile(1);  
 //		DownloadScp.downloadFile(3);
 //		DownloadScp.downloadFile(4);
->>>>>>> 23b0ddb3d9844107510aea97a4e801c5f3f74e6d
 		
 	}
 }
