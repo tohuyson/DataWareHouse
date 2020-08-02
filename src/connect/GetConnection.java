@@ -51,7 +51,6 @@ public class GetConnection {
 				url = prop.getProperty("url_warehouse");
 				databasebName = prop.getProperty("database_name_warehouse");
 				user = prop.getProperty("username_warehouse");
-				System.out.println(user);
 				pass = prop.getProperty("pass_warehouse");
 			} catch (IOException ex) {
 				ex.printStackTrace();
@@ -73,13 +72,13 @@ public class GetConnection {
 		return result;
 	}
 
-	public static void main(String[] args) throws Exception {
-//		Connection conn = new GetConnection().getConnection("control");
-//		if (conn != null) {
-//			System.out.println("Successfully");
-//		}
-//		String s = "191924|hsjabro jsdfkj asdkj@aks";
-//		System.out.println(s.replace("|", ",").replace(" ", ","));
-		new GetConnection().getConnection("staging");
-	}
+//	public static void main(String[] args) throws Exception {
+////		Connection conn = new GetConnection().getConnection("control");
+////		if (conn != null) {
+////			System.out.println("Successfully");
+////		}
+////		String s = "191924|hsjabro jsdfkj asdkj@aks";
+////		System.out.println(s.replace("|", ",").replace(" ", ","));
+//		new GetConnection().getConnection("staging");
+//	}
 }

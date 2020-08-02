@@ -29,11 +29,19 @@ import connect.GetConnection;
 public class LoadFromLocalToStaging {
 	private BufferedReader bufferedReader;
 
+<<<<<<< HEAD
 	public static void main(String[] args) throws Exception {
 		new LoadFromLocalToStaging().staging("my_logs.status_download = 'OK Download' AND my_logs.id_config=" + args);
 		// new LoadFromLocalToStaging().readStudentsFromFile(new
 		// File("D:\\Data\\17130044_sang_nhom8.txt"),11);
 	}
+=======
+//	public static void main(String[] args) throws Exception {
+//		new LoadFromLocalToStaging().staging("my_logs.status_download = 'OK Download' AND my_logs.id_config=3 and my_logs.id=1");
+//		// new LoadFromLocalToStaging().readStudentsFromFile(new
+//		// File("D:\\Data\\17130044_sang_nhom8.txt"),11);
+//	}
+>>>>>>> 28d475a9afddbd5d7ac15beaae2aa74e05336c95
 
 	public void staging(String condition) throws Exception {
 		Connection connect_control = null;
