@@ -105,6 +105,7 @@ public class StagingtoWarehouse {
 								pSDataWH.setInt(i - 1, s);
 							} catch (NumberFormatException e) {
 								LocalDate date = transform(1, data);
+
 								if (date != null) {
 									String sqldate = "select * from datadim where full_date='" + date + "'";
 									PreparedStatement datadim = (PreparedStatement) connWareHouse
@@ -112,7 +113,14 @@ public class StagingtoWarehouse {
 									ResultSet rsdim = datadim.executeQuery();
 									int id_SK = -1;
 									while (rsdim.next()) {
-										id_SK = rsdim.getInt("id_SK");
+
+//										id_SK = rsdim.getInt("id_SK");
+										if (rsdim.getInt("id_SK") != -1) {
+											System.out.println("dsđsd");
+											id_SK = rsdim.getInt("id_SK");
+										} else {
+											id_SK = -1;
+										}
 									}
 									pSDataWH.setInt(i - 1, id_SK);
 								} else {
@@ -205,12 +213,12 @@ public class StagingtoWarehouse {
 //	public static void main(String[] args) throws Exception {
 //		try {
 //
-//			LoadStagingtoWarehouse(3);
+//			LoadStagingtoWarehouse(1);
 ////			loadDataStagingtoWarehouse(
 ////					"INSERT INTO students (ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?)");
 ////			loadDataStagingtoWarehouseTranf(
 ////					"INSERT INTO students (stt,ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-////					1);
+////					1, 1);
 ////			loadDataStagingtoWarehouseTranf("INSERT INTO class (stt,ma_lop,ma_monhoc,nam_hoc) VALUES(?,?,?,?)", 3, 1);
 //
 //		} catch (SQLException e) {
