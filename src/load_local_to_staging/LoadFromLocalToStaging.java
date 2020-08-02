@@ -12,7 +12,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -31,7 +30,7 @@ public class LoadFromLocalToStaging {
 	private BufferedReader bufferedReader;
 
 	public static void main(String[] args) throws Exception {
-		new LoadFromLocalToStaging().staging("my_logs.status_download = 'OK Download'");
+		new LoadFromLocalToStaging().staging("my_logs.status_download = 'OK Download' AND my_logs.id_config=" + args);
 		// new LoadFromLocalToStaging().readStudentsFromFile(new
 		// File("D:\\Data\\17130044_sang_nhom8.txt"),11);
 	}
@@ -166,8 +165,8 @@ public class LoadFromLocalToStaging {
 			connect_control.close();
 
 		} catch (SQLException e) {
-//			throw new RemoteException(e.getMessage(), e);
-			count=0;
+			// throw new RemoteException(e.getMessage(), e);
+			count = 0;
 			staging("my_logs.status_download = 'ERROR Staging'");
 		}
 	}
@@ -318,7 +317,7 @@ public class LoadFromLocalToStaging {
 		// System.out.println(sql_students);
 		// 9.2.6: Đóng file
 		workBook.close();
-		System.out.println("List ST: " + sql_students);
+		// System.out.println("List ST: " + sql_students);
 		return sql_students;
 	}
 

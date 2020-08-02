@@ -1,3 +1,4 @@
+package main;
 
 import java.io.File;
 import java.sql.Connection;
@@ -24,7 +25,7 @@ public class DownloadScp {
 	}
   
 	
-	public static void downloadFile(int id_config) throws Exception {
+	public static void downloadFile(String id_config) throws Exception {
 		Connection conn = new GetConnection().getConnection("control");
 		try { 
 			Statement sta = conn.createStatement();
@@ -38,7 +39,7 @@ public class DownloadScp {
 				String remotePath = rs.getString("remote_path");
 				String localPath = rs.getString("local_path"); 
 				String name_file_type= rs.getString("name_file_type");
-				int id = rs.getInt(1);
+				String id = String.valueOf(rs.getInt(1));
 				
 				
 				CkSsh ssh = new CkSsh();
@@ -85,7 +86,7 @@ public class DownloadScp {
 		}
 	}
 	
-	public static void logDownloadFile(File folder,int id) throws Exception {
+	public static void logDownloadFile(File folder,String id) throws Exception {
 		// chua kiem tra local_path da ton tai hay chua
 		Connection conn = new GetConnection().getConnection("control");
 		int sum = 0;
@@ -94,7 +95,7 @@ public class DownloadScp {
 				+ "(?,?,?,?,?,?,?,?,?,?,?,?)" ; 
 		PreparedStatement sta = conn.prepareStatement(sql);
 		for (File f : folder.listFiles()) {
-				sta.setInt(1, id);
+				sta.setInt(1, Integer.parseInt(id));
 				sta.setString(2, "OK Download");
 				sta.setDate(3, new Date(System.currentTimeMillis()));
 				sta.setString(4, f.getParent() + "\\");
@@ -116,9 +117,9 @@ public class DownloadScp {
 
 	
 	public static void main(String argv[]) throws Exception {
-		DownloadScp.downloadFile(1);  
-//		DownloadScp.downloadFile(3);
-//		DownloadScp.downloadFile(4);
+		DownloadScp.downloadFile("1");  
+//		DownloadScp.downloadFile("3");
+//		DownloadScp.downloadFile("4");
 		
 	}
 }
