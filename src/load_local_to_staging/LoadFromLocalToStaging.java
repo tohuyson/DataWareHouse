@@ -12,7 +12,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -30,13 +29,14 @@ import connect.GetConnection;
 public class LoadFromLocalToStaging {
 	private BufferedReader bufferedReader;
 
-//	public static void main(String[] args) throws Exception {
-//		new LoadFromLocalToStaging().staging("my_logs.status_download = 'OK Download' AND my_logs.id_config=3 and my_logs.id=1");
-//		// new LoadFromLocalToStaging().readStudentsFromFile(new
-//		// File("D:\\Data\\17130044_sang_nhom8.txt"),11);
-//	}
+	public static void main(String[] args) throws Exception {
+		LoadFromLocalToStaging loadFromLocalToStaging = new LoadFromLocalToStaging();
 
-	public void staging(String condition) throws Exception {
+		loadFromLocalToStaging.staging("OK Download", Integer.parseInt(args[0]));
+	}
+
+
+	public void staging(String condition, int id_config) throws Exception {
 		Connection connect_control = null;
 		PreparedStatement pre_control = null;
 		String sql_update;
@@ -52,8 +52,9 @@ public class LoadFromLocalToStaging {
 			// 3. Kiểm tra các file OK Download
 			pre_control = (PreparedStatement) connect_control.prepareStatement(
 					"SELECT my_logs.id ,my_logs.name_file_local, my_configs.name_table_staging, my_configs.field, my_configs.field_insert,my_configs.colum_table_staging, my_logs.local_path,my_logs.extension,my_logs.status_stagging,my_logs.status_warehouse"
-							+ " from my_logs JOIN my_configs on my_logs.id_config= my_configs.id" + " where "
-							+ condition);
+							+ " from my_logs JOIN my_configs on my_logs.id_config= my_configs.id"
+							+ " where my_logs.status_download = '" + condition + "'" + " AND my_logs.id_config="
+							+ id_config);
 			// 4. Nhận ResultSet thỏa điều kiện
 			ResultSet re = pre_control.executeQuery();
 			// 5. Chạy từng record
@@ -166,9 +167,11 @@ public class LoadFromLocalToStaging {
 			connect_control.close();
 
 		} catch (SQLException e) {
-//			throw new RemoteException(e.getMessage(), e);
-			count=0;
-			staging("my_logs.status_download = 'ERROR Staging'");
+			e.printStackTrace();
+			// System.out.println(e.getMessage());
+			 count = 0;
+			System.out.println("Lỗi gì chưa xử lý được\n ");
+			 staging("ERROR Staging", id_config);
 		}
 	}
 
@@ -311,6 +314,9 @@ public class LoadFromLocalToStaging {
 				sql_students += listStudents.get(i) + ",";
 			}
 		}
+		if (sql_students.isEmpty()) {
+			return sql_students;
+		}
 		sql_students = sql_students.substring(0, sql_students.lastIndexOf(","));
 
 		sql_students += ";";
@@ -318,7 +324,7 @@ public class LoadFromLocalToStaging {
 		// System.out.println(sql_students);
 		// 9.2.6: Đóng file
 		workBook.close();
-		System.out.println("List ST: " + sql_students);
+		// System.out.println("List ST: " + sql_students);
 		return sql_students;
 	}
 
