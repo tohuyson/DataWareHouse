@@ -55,8 +55,7 @@ public class StagingtoWarehouse {
 
 			}
 			LoadFromLocalToStaging staging = new LoadFromLocalToStaging();
-			staging.staging("my_logs.status_download = 'OK Download' AND my_logs.id_config=" + idConfig
-					+ " and my_logs.id=" + idlog);
+			staging.staging("OK Download",idConfig);
 			loadDataStagingtoWarehouseTranf(sql_insert_table, idConfig, idlog);
 
 		}
