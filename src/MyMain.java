@@ -2,15 +2,10 @@
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-
 import load_staging_to_warehouse.StagingtoWarehouse;
 
 public class MyMain {
-	static DownloadScp dowload = new DownloadScp();
-	static StagingtoWarehouse loadWH = new StagingtoWarehouse();
+//	static DownloadScp dowload = new DownloadScp();
 
 //	public static void main(String[] args) {
 //		try {
@@ -24,15 +19,19 @@ public class MyMain {
 //	}
 
 	public static void main(String[] args) {
+		StagingtoWarehouse loadWH = new StagingtoWarehouse();
 		Timer timer = new Timer();
 		TimerTask task = new TimerTask() {
 
+			int count = 1;
 			@Override
 			public void run() {
 				try {
+
+					System.out.println(" thực hiện lần thứ: " + count);
 					loadWH.LoadStagingtoWarehouse(Integer.parseInt(args[0]));
+					count++;
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

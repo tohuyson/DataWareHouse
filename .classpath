@@ -15,7 +15,6 @@
 	<classpathentry kind="lib" path="lib/joda-time-2.9-no-tzdb.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-2.9-sources.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-2.9.jar"/>
-	<classpathentry kind="lib" path="quartz-2.3.0-SNAPSHOT.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
 			<attribute name="module" value="true"/>

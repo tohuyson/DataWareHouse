@@ -29,14 +29,13 @@ import connect.GetConnection;
 public class LoadFromLocalToStaging {
 	private BufferedReader bufferedReader;
 
-	public static void main(String[] args) throws Exception {
-		LoadFromLocalToStaging loadFromLocalToStaging = new LoadFromLocalToStaging();
+//	public static void main(String[] args) throws Exception {
+//		LoadFromLocalToStaging loadFromLocalToStaging = new LoadFromLocalToStaging();
+//
+//		loadFromLocalToStaging.staging("OK Download", Integer.parseInt(args[0]),7);
+//	}
 
-		loadFromLocalToStaging.staging("OK Download", Integer.parseInt(args[0]));
-	}
-
-
-	public void staging(String condition, int id_config) throws Exception {
+	public void staging(String condition, int id_config, int id_log) throws Exception {
 		Connection connect_control = null;
 		PreparedStatement pre_control = null;
 		String sql_update;
@@ -54,7 +53,7 @@ public class LoadFromLocalToStaging {
 					"SELECT my_logs.id ,my_logs.name_file_local, my_configs.name_table_staging, my_configs.field, my_configs.field_insert,my_configs.colum_table_staging, my_logs.local_path,my_logs.extension,my_logs.status_stagging,my_logs.status_warehouse"
 							+ " from my_logs JOIN my_configs on my_logs.id_config= my_configs.id"
 							+ " where my_logs.status_download = '" + condition + "'" + " AND my_logs.id_config="
-							+ id_config);
+							+ id_config + " AND my_logs.id=" + id_log);
 			// 4. Nhận ResultSet thỏa điều kiện
 			ResultSet re = pre_control.executeQuery();
 			// 5. Chạy từng record
@@ -169,9 +168,9 @@ public class LoadFromLocalToStaging {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			// System.out.println(e.getMessage());
-			 count = 0;
+			count = 0;
 			System.out.println("Lỗi gì chưa xử lý được\n ");
-			 staging("ERROR Staging", id_config);
+			staging("ERROR Staging", id_config, id_log);
 		}
 	}
 

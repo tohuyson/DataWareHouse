@@ -54,15 +54,15 @@ public class StagingtoWarehouse {
 				pSDataWH.execute();
 
 			}
+//			System.out.println(idConfig);
 			LoadFromLocalToStaging staging = new LoadFromLocalToStaging();
-			staging.staging("OK Download",idConfig);
-			loadDataStagingtoWarehouseTranf(sql_insert_table, idConfig, idlog);
+			staging.staging("OK Download", idConfig, idlog);
+			loadDataStagingtoWarehouse(sql_insert_table, idConfig, idlog);
 
 		}
 	}
 
-	public static void loadDataStagingtoWarehouseTranf(String sqlLoadWarehouse, int config, int idLog)
-			throws Exception {
+	public static void loadDataStagingtoWarehouse(String sqlLoadWarehouse, int config, int idLog) throws Exception {
 		Connection connControl = new GetConnection().getConnection("control");
 		String sql = "SELECT * FROM my_logs JOIN my_configs ON my_logs.id_config= my_configs.id WHERE my_logs.id_config="
 				+ config + " and my_logs.id=" + idLog;
@@ -72,6 +72,8 @@ public class StagingtoWarehouse {
 		String nameTable = "";
 		int colum_table = -1;
 		String field = "";
+		String status_warehouse = "";
+		String field_convert = "";
 
 //		System.out.println(field);
 
@@ -83,8 +85,12 @@ public class StagingtoWarehouse {
 			colum_table = rS.getInt("colum_table_staging");
 			field = rS.getString("field");
 			int id = rS.getInt("id");
+			status_warehouse = rS.getString("status_warehouse");
+			field_convert = rS.getString("field_convert");
+//			System.out.println(field_convert);
 
 			String[] arrField = field.split("\\,");
+//			System.out.println((arrField[0]));
 			if (rS.getString("status_stagging").equals("OK Staging")) {
 
 				Connection connStaging = new GetConnection().getConnection("staging");
@@ -103,31 +109,16 @@ public class StagingtoWarehouse {
 								int s = Integer.parseInt(data);
 								pSDataWH.setInt(i - 1, s);
 							} catch (NumberFormatException e) {
-								LocalDate date = transform(1, data);
-
-								if (date != null) {
-									String sqldate = "select * from datadim where full_date='" + date + "'";
-									PreparedStatement datadim = (PreparedStatement) connWareHouse
-											.prepareStatement(sqldate);
-									ResultSet rsdim = datadim.executeQuery();
-									int id_SK = -1;
-									while (rsdim.next()) {
-
-//										id_SK = rsdim.getInt("id_SK");
-										if (rsdim.getInt("id_SK") != -1) {
-											System.out.println("dsđsd");
-											id_SK = rsdim.getInt("id_SK");
-										} else {
-											id_SK = -1;
-										}
-									}
-									pSDataWH.setInt(i - 1, id_SK);
+								if (arrField[i - 1].equals(field_convert)) {
+									int idsk = convertIdSk(field_convert, connWareHouse, data);
+									pSDataWH.setInt(i - 1, idsk);
 								} else {
 									try {
 										String s = String.valueOf(data);
 										pSDataWH.setString(i - 1, s);
 									} catch (NullPointerException e2) {
 									}
+
 								}
 							}
 						}
@@ -149,17 +140,50 @@ public class StagingtoWarehouse {
 					String sqlTruncate = "TRUNCATE TABLE " + name_table_staging;
 					PreparedStatement psStaging = (PreparedStatement) connStaging.prepareStatement(sqlTruncate);
 					psStaging.execute();
-				} else {
+				} else if (!status_warehouse.equals("OK Warehouse")) {
 					String updateLog = "update my_logs set status_warehouse="
 							+ " 'ERROR', date_time_warehouse= now(), load_row_warehouse='-1' where id=" + id;
 					prS = (PreparedStatement) connControl.prepareStatement(updateLog);
 					prS.executeUpdate();
 					System.out.println("Load warehouse không thành công");
 //					continue;
+				} else {
+					System.out.println("File đã load rồi");
 				}
 
 			}
+
 		}
+
+	}
+
+	public static int convertIdSk(String fieldConvert, Connection connWareHouse, String data) throws Exception {
+		switch (fieldConvert) {
+		case "ngay_sinh":
+			LocalDate date = transform(1, data);
+			int id_SK = 0;
+			if (date != null) {
+				String sqldate = "select * from datadim where full_date='" + date + "'";
+				PreparedStatement datadim = (PreparedStatement) connWareHouse.prepareStatement(sqldate);
+				ResultSet rsdim = datadim.executeQuery();
+
+				while (rsdim.next()) {
+//					id_SK = rsdim.getInt("id_SK");
+					if (rsdim.getInt("id_SK") != -1) {
+//						System.out.println("dsđsd");
+						id_SK = rsdim.getInt("id_SK");
+					} else {
+						id_SK = 1;
+					}
+				}
+			} else {
+				id_SK = 1;
+			}
+//			break;
+			System.out.println(id_SK);
+			return id_SK;
+		}
+		return -1;
 	}
 
 	public static LocalDate transform(int mode, String data) {
@@ -209,20 +233,23 @@ public class StagingtoWarehouse {
 		}
 	}
 
-//	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 //		try {
-//
-//			LoadStagingtoWarehouse(1);
-////			loadDataStagingtoWarehouse(
-////					"INSERT INTO students (ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?)");
-////			loadDataStagingtoWarehouseTranf(
-////					"INSERT INTO students (stt,ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-////					1, 1);
-////			loadDataStagingtoWarehouseTranf("INSERT INTO class (stt,ma_lop,ma_monhoc,nam_hoc) VALUES(?,?,?,?)", 3, 1);
-//
+
+//		System.out.println(convertIdSk("ngay_sinh", "23/11/1999"));
+
+//		LoadStagingtoWarehouse(2);
+
+//			loadDataStagingtoWarehouse(
+//					"INSERT INTO students (ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?)");
+//			loadDataStagingtoWarehouseTranf(
+//					"INSERT INTO students (stt,ma_sv,ho_lot,ten,ngay_sinh,ma_lop,ten_lop,dien_thoai,email,que_quan,ghi_chu) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+//					1, 1);
+//			loadDataStagingtoWarehouseTranf("INSERT INTO class (stt,ma_lop,ma_monhoc,nam_hoc) VALUES(?,?,?,?)", 3, 1);
+
 //		} catch (SQLException e) {
 //			e.printStackTrace();
 //		}
-////		System.out.println(transform(1,"20/02/1990"));
-//	}
+//		System.out.println(transform(1,"20/02/1990"));
+	}
 }
