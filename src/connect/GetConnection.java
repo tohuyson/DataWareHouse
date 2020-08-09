@@ -65,6 +65,7 @@ public class GetConnection {
 		try {
 			result = DriverManager.getConnection(connectionURL, user, pass);
 		} catch (SQLException e) {
+//			1a. Thông báo lỗi kết nối ra màn hình console
 			System.out.println("Can't connect!");
 			System.exit(0);
 			e.printStackTrace();
