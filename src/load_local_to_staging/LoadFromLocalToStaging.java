@@ -29,11 +29,11 @@ import connect.GetConnection;
 public class LoadFromLocalToStaging {
 	private BufferedReader bufferedReader;
 
-//	public static void main(String[] args) throws Exception {
-//		LoadFromLocalToStaging loadFromLocalToStaging = new LoadFromLocalToStaging();
-//
-//		loadFromLocalToStaging.staging("OK Download", Integer.parseInt(args[0]),7);
-//	}
+	public static void main(String[] args) throws Exception {
+		LoadFromLocalToStaging loadFromLocalToStaging = new LoadFromLocalToStaging();
+
+		loadFromLocalToStaging.staging("OK Download", Integer.parseInt(args[0]),29);
+	}
 
 	public void staging(String condition, int id_config, int id_log) throws Exception {
 		Connection connect_control = null;
