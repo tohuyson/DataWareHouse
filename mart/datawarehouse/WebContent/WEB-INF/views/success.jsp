@@ -53,7 +53,7 @@ body{
 			OK!
 		
 		<div class="">
-			<a href="index.jsp">Back</a>
+			<a href="Run">Run</a>
 		</div>
 		</div>
 	</div>
