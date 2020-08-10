@@ -32,11 +32,10 @@ public class LoadFromLocalToStaging {
 	public static void main(String[] args) throws Exception {
 		LoadFromLocalToStaging loadFromLocalToStaging = new LoadFromLocalToStaging();
 
-<<<<<<< HEAD
 		loadFromLocalToStaging.staging("OK Download", Integer.parseInt(args[0]),29);
-=======
+
 		loadFromLocalToStaging.staging("OK Download", 1, 7);
->>>>>>> 209faad487b74946b1aeef4b50d6b55dbeb04215
+
 	}
 
 	public void staging(String condition, int id_config, int id_log) throws Exception {
